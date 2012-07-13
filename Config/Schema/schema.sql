@@ -319,7 +319,7 @@ CREATE TABLE IF NOT EXISTS `localized` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UNIQUE_LOCALIZING` (`model`,`foreign_key`,`place_id`),
+  UNIQUE KEY `UNIQUE_LOCALIZING` (`model`,`foreign_key`),
   KEY `INDEX_LOCALIZED` (`model`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 

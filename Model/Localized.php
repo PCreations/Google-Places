@@ -1,22 +1,27 @@
 <?php
 App::uses('PlacesAppModel', 'Places.Model');
 /**
- * PlaceTypesPlace Model
+ * Localized Model
  *
- * @property PlaceType $PlaceType
  * @property Place $Place
  */
-class PlaceTypesPlace extends PlacesAppModel {
+class Localized extends PlacesAppModel {
 
 	public $actsAs = array('Containable');
-	
+
+/**
+ * Use table
+ *
+ * @var mixed False or table name
+ */
+	public $useTable = 'localized';
 /**
  * Validation rules
  *
  * @var array
  */
 	public $validate = array(
-		'place_type_id' => array(
+		'foreign_key' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
@@ -27,8 +32,18 @@ class PlaceTypesPlace extends PlacesAppModel {
 			),
 		),
 		'place_id' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
+			'notempty' => array(
+				'rule' => array('notempty'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'model' => array(
+			'notempty' => array(
+				'rule' => array('notempty'),
 				//'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,
@@ -46,21 +61,17 @@ class PlaceTypesPlace extends PlacesAppModel {
  * @var array
  */
 	public $belongsTo = array(
-		'PlaceType' => array(
-			'className' => 'PlaceType',
-			'foreignKey' => 'place_type_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'dependent' => true
-		),
 		'Place' => array(
 			'className' => 'Place',
 			'foreignKey' => 'place_id',
 			'conditions' => '',
 			'fields' => '',
-			'order' => '',
-			'dependent' => true
+			'order' => ''
 		)
 	);
+
+
+	public function getPlaceBelongsTo() {
+		return $this->Place->belongsTo();
+	}
 }
