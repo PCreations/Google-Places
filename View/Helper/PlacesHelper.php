@@ -13,7 +13,7 @@ class PlacesHelper extends AppHelper {
 	protected $_getPlaceCallback = array(
 		'controller' => 'places',
 		'action' => 'getPlace',
-		'plugin' => 'Places'
+		'plugin' => 'GooglePlaces'
 	);
 
 	public function __construct(View $view, $settings = array()) {

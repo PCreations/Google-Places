@@ -1,5 +1,5 @@
 <?php
-App::uses('PlacesAppController', 'Places.Controller');
+App::uses('PlacesAppController', 'GooglePlaces.Controller');
 /**
  * PlaceTypes Controller
  *

@@ -1,12 +1,12 @@
 <?php
-App::uses('PlacesAppModel', 'Places.Model');
+App::uses('PlacesAppModel', 'GooglePlaces.Model');
 /**
  * Country Model
  *
  * @property Geoname $Geoname
  * @property Place $Place
  */
-class Country extends PlacesAppModel {
+class Country extends GooglePlacesAppModel {
 
 	public $actsAs = array('Containable');
 /**

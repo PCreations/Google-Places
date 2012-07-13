@@ -1,11 +1,11 @@
 <?php
-App::uses('PlacesAppModel', 'Places.Model');
+App::uses('GooglePlacesAppModel', 'GooglePlaces.Model');
 /**
  * PlaceType Model
  *
  * @property Place $Place
  */
-class PlaceType extends PlacesAppModel {
+class PlaceType extends GooglePlacesAppModel {
 
 	public $actsAs = array('Containable');
 	
@@ -36,8 +36,9 @@ class PlaceType extends PlacesAppModel {
  */
 	public $hasAndBelongsToMany = array(
 		'Place' => array(
-			'className' => 'Place',
+			'className' => 'GooglePlaces.Place',
 			'joinTable' => 'place_types_places',
+			'with' => 'GooglePlaces.PlaceTypesPlace',
 			'foreignKey' => 'place_type_id',
 			'associationForeignKey' => 'place_id',
 			'unique' => 'keepExisting',

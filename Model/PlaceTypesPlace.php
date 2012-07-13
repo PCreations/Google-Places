@@ -1,12 +1,12 @@
 <?php
-App::uses('PlacesAppModel', 'Places.Model');
+App::uses('GooglePlacesAppModel', 'GooglePlaces.Model');
 /**
  * PlaceTypesPlace Model
  *
  * @property PlaceType $PlaceType
  * @property Place $Place
  */
-class PlaceTypesPlace extends PlacesAppModel {
+class PlaceTypesPlace extends GooglePlacesAppModel {
 
 	public $actsAs = array('Containable');
 	
@@ -47,7 +47,7 @@ class PlaceTypesPlace extends PlacesAppModel {
  */
 	public $belongsTo = array(
 		'PlaceType' => array(
-			'className' => 'PlaceType',
+			'className' => 'GooglePlaces.PlaceType',
 			'foreignKey' => 'place_type_id',
 			'conditions' => '',
 			'fields' => '',
@@ -55,7 +55,7 @@ class PlaceTypesPlace extends PlacesAppModel {
 			'dependent' => true
 		),
 		'Place' => array(
-			'className' => 'Place',
+			'className' => 'GooglePlaces.Place',
 			'foreignKey' => 'place_id',
 			'conditions' => '',
 			'fields' => '',

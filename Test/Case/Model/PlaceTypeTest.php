@@ -1,5 +1,5 @@
 <?php
-App::uses('PlaceType', 'Places.Model');
+App::uses('PlaceType', 'GooglePlaces.Model');
 
 /**
  * PlaceType Test Case
@@ -11,7 +11,7 @@ class PlaceTypeTestCase extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array('plugin.places.place_type', 'app.place', 'app.place_types_place');
+	public $fixtures = array('plugin.google_places.place_type', 'app.place', 'app.place_types_place');
 
 /**
  * setUp method

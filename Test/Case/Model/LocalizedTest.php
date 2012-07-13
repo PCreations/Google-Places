@@ -1,5 +1,5 @@
 <?php
-App::uses('Localized', 'Places.Model');
+App::uses('Localized', 'GooglePlaces.Model');
 
 /**
  * Localized Test Case
@@ -11,7 +11,7 @@ class LocalizedTestCase extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array('plugin.places.localized', 'app.place');
+	public $fixtures = array('plugin.google_places.localized', 'app.place');
 
 /**
  * setUp method

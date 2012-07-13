@@ -1,10 +1,10 @@
 <?php
-App::uses('PlacesAppController', 'Places.Controller');
+App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
 /**
  * Places Controller
  *
  */
-class PlacesController extends PlacesAppController {
+class PlacesController extends GooglePlacesAppController {
 
 	public $components = array('RequestHandler');
 

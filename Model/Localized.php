@@ -1,11 +1,11 @@
 <?php
-App::uses('PlacesAppModel', 'Places.Model');
+App::uses('GooglePlacesAppModel', 'GooglePlaces.Model');
 /**
  * Localized Model
  *
  * @property Place $Place
  */
-class Localized extends PlacesAppModel {
+class Localized extends GooglePlacesAppModel {
 
 	public $actsAs = array('Containable');
 
@@ -62,16 +62,16 @@ class Localized extends PlacesAppModel {
  */
 	public $belongsTo = array(
 		'Place' => array(
-			'className' => 'Place',
+			'className' => 'GooglePlaces.Place',
 			'foreignKey' => 'place_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
+		),
+		'Country' => array(
+			'className' => 'GooglePlaces.Country',
+			'foreignKey' => 'foreign_key',
 		)
 	);
 
-
-	public function getPlaceBelongsTo() {
-		return $this->Place->belongsTo();
-	}
 }

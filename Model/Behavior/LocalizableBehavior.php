@@ -7,7 +7,7 @@ class LocalizableBehavior extends ModelBehavior {
 			array(
 				'hasOne' => array(
 					'Localization' => array(
-						'className' => 'Places.Localized',
+						'className' => 'GooglePlaces.Localized',
 						'foreignKey' => 'foreign_key',
 						'conditions' => array(
 							'Localization.model' => $model->name

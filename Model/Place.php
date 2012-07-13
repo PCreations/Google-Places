@@ -1,5 +1,5 @@
 <?php
-App::uses('PlacesAppModel', 'Places.Model');
+App::uses('GooglePlacesAppModel', 'GooglePlaces.Model');
 /**
  * Place Model
  *
@@ -7,7 +7,7 @@ App::uses('PlacesAppModel', 'Places.Model');
  * @property Localized $Localized
  * @property PlaceType $PlaceType
  */
-class Place extends PlacesAppModel {
+class Place extends GooglePlacesAppModel {
 
 	public $actsAs = array('Containable');
 /**
@@ -77,7 +77,7 @@ class Place extends PlacesAppModel {
  */
 	public $belongsTo = array(
 		'Country' => array(
-			'className' => 'Country',
+			'className' => 'GooglePlaces.Country',
 			'foreignKey' => 'country_id',
 			'conditions' => '',
 			'fields' => '',
@@ -92,7 +92,7 @@ class Place extends PlacesAppModel {
  */
 	public $hasMany = array(
 		'Localized' => array(
-			'className' => 'Localized',
+			'className' => 'GooglePlaces.Localized',
 			'foreignKey' => 'place_id',
 			'dependent' => false,
 			'conditions' => '',
@@ -116,7 +116,7 @@ class Place extends PlacesAppModel {
 		'PlaceType' => array(
 			'className' => 'PlaceType',
 			'joinTable' => 'place_types_places',
-			'with' => 'PlacesTypesPlace',
+			'with' => 'PlaceTypesPlace',
 			'foreignKey' => 'place_id',
 			'associationForeignKey' => 'place_type_id',
 			'unique' => 'keepExisting',
@@ -131,7 +131,4 @@ class Place extends PlacesAppModel {
 		)
 	);
 
-	public function retrieveAssociations() {
-		return $this->_associations();
-	}
 }

@@ -1,5 +1,5 @@
 <?php
-App::uses('Country', 'Places.Model');
+App::uses('Country', 'GooglePlaces.Model');
 
 /**
  * Country Test Case
@@ -11,7 +11,7 @@ class CountryTestCase extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array('plugin.places.country', 'app.geoname', 'app.place');
+	public $fixtures = array('plugin.google_places.country', 'app.geoname', 'app.place');
 
 /**
  * setUp method
