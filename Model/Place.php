@@ -131,4 +131,14 @@ class Place extends GooglePlacesAppModel {
 		)
 	);
 
+	public function isAlreadyExists($id) {
+		$result = $this->find('first', array(
+			'contain' => array(),
+			'conditions' => array(
+				'Place.id' => $id
+			)
+		));
+		return !empty($result);
+	}
+
 }

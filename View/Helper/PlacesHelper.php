@@ -10,10 +10,10 @@ class PlacesHelper extends AppHelper {
 
 	const PLACES_API_URL = "http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false";
 	
-	protected $_getPlaceCallback = array(
+	protected $_autocompleteCallback = array(
 		'controller' => 'places',
-		'action' => 'getPlace',
-		'plugin' => 'GooglePlaces'
+		'action' => 'handleAutocomplete',
+		'plugin' => 'google_places'
 	);
 
 	public function __construct(View $view, $settings = array()) {
@@ -21,8 +21,7 @@ class PlacesHelper extends AppHelper {
 	}
 
 	public function autocomplete($inputID, $latitude, $longitude, $iso2) {
-		$getPlaceCallback = $this->Html->url($this->_getPlaceCallback);
-		debug($getPlaceCallback);
+		$autocompleteCallback = $this->Html->url($this->_autocompleteCallback);
 		$this->Html->scriptStart(array('inline' => false));
 		?>
 			var defaultBounds = new google.maps.LatLngBounds(
@@ -39,7 +38,7 @@ class PlacesHelper extends AppHelper {
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
 				console.log(place);
-				$.post("<?php echo $getPlaceCallback;?>", {place: serialize(place)});
+				$.post("<?php echo $autocompleteCallback;?>", {place: JSON.stringify(place)});
 			});
 		<?php
 		$this->Html->scriptEnd();

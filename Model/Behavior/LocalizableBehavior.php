@@ -10,7 +10,7 @@ class LocalizableBehavior extends ModelBehavior {
 						'className' => 'GooglePlaces.Localized',
 						'foreignKey' => 'foreign_key',
 						'conditions' => array(
-							'Localization.model' => $model->name
+							'Localization.model' => $model->alias
 						),
 						'dependent' => true,
 					)
@@ -22,7 +22,7 @@ class LocalizableBehavior extends ModelBehavior {
 		$model->Localization->bindModel(
 			array(
 				'belongsTo' => array(
-					"{$model->name}" => array(
+					"{$model->alias}" => array(
 						'foreignKey' => 'foreign_key'
 					)
 				)

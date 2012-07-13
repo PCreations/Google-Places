@@ -6,13 +6,16 @@ App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
  */
 class PlacesController extends GooglePlacesAppController {
 
-	public $components = array('RequestHandler');
+	public $components = array('RequestHandler', 'GooglePlaces.PlaceHandler');
 
-	public function getPlace() {
+	public function handleAutocomplete() {
+		$this->autoRender = false;
+		
 		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
-		debug($_POST['place']);
+		
+		$this->PlaceHandler->savePlace($_POST['place']);
 	}
 
 }
