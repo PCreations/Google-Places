@@ -33,7 +33,7 @@ class LocalizableBehavior extends ModelBehavior {
 		if(!$model->Behaviors->attached('Containable')) {
 			$model->Behaviors->attach('Containable', array('autoFields' => false));
 		}
-		$model->contain = Set::merge($model->contain, array(
+		$model->contain(array(
 			'Localization' => array(
 				'Place' => array(
 					'PlaceType',
@@ -41,8 +41,6 @@ class LocalizableBehavior extends ModelBehavior {
 				)
 			)
 		));
-
-		debug($model->contain);
 	}
 }
 
