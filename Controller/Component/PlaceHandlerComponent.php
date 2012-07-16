@@ -7,8 +7,6 @@ App::uses('GooglePlacesAPI', 'GooglePlaces.Lib');
 
 class PlaceHandlerComponent extends Component {
 	
-	public $components = array('GooglePlaces.GooglePlacesAPI');
-
 	public $googlePlacesAPI;
 
 	public $controller;
@@ -21,7 +19,7 @@ class PlaceHandlerComponent extends Component {
 	public function __construct(ComponentCollection $collection, $settings) {
 		$this->controller = $collection->getController();
 		$this->_defaults = Set::merge($this->_defaults, $settings);
-		$this->googlePlacesAPI = new GooglePlacesAPI();
+		$this->googlePlacesAPI = new GooglePlacesAPI(Configure::read('GooglePlaces.key'));
 	}
 
 	public function savePlace($place) {
@@ -37,7 +35,7 @@ class PlaceHandlerComponent extends Component {
 			$placeDetails = $this->googlePlacesAPI->detail($place->reference);
 			if($placeDetails->id != $place->id) {
 
-				$this->controller->Place->updatePlaceId($place->id, $placeDetails->id);
+				$place->id = $this->controller->Place->updatePlaceId($place->id, $placeDetails->id);
 			}
 		}
 		else { /* Else add the place */

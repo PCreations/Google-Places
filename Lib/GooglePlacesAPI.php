@@ -17,8 +17,8 @@ class GooglePlacesAPI {
  * Constructor
  *
  */
-	public function __construct($apiKey = null) {
-		$this->apiKey = ($apiKey == null) ? Configure::read('GooglePlaces.key') : $apiKey;
+	public function __construct($apiKey) {
+		$this->apiKey = $apiKey;
 		$this->GooglePlacesRequest = new GooglePlacesRequest();
 	}
 

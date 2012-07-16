@@ -2,7 +2,7 @@
 
 class PlacesHelper extends AppHelper {
 	
-	public $helpers = array('Html', 'Js');
+	public $helpers = array('Html', 'Js', 'Form');
 
 	protected $_settings = array(
 		'key' => null
@@ -20,13 +20,17 @@ class PlacesHelper extends AppHelper {
 		parent::__construct($view, $settings);
 	}
 
-	public function autocomplete($inputID, $latitude, $longitude, $iso2) {
+	public function autocomplete($iso2) {
+		static $autocompleteInputsID = 0;
+		$autocompleteInputsID++;
+		$inputID = 'city_autocomplete_' . $autocompleteInputsID;
+		echo $this->Form->input($inputID, array('id' => $inputID));
 		$autocompleteCallback = $this->Html->url($this->_autocompleteCallback);
 		$this->Html->scriptStart(array('inline' => false));
 		?>
-			var defaultBounds = new google.maps.LatLngBounds(
-				new google.maps.LatLng(<?php echo $latitude;?>, <?php echo $longitude;?>)
-			);
+			/*var defaultBounds = new google.maps.LatLngBounds(
+				new google.maps.LatLng()
+			);*/
 
 			var input = document.getElementById('<?php echo $inputID;?>');
 			var options = {
