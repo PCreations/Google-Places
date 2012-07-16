@@ -3,6 +3,9 @@
 App::uses('HttpSocket', 'Network/Http');
 App::uses('String', 'Utility');
 App::uses('Set', 'Utility');
+App::uses('GooglePlacesRequest', 'GooglePlaces.Lib');
+App::uses('GooglePlacesResponse', 'GooglePlaces.Lib');
+App::uses('GooglePlacesException', 'GooglePlaces.Lib');
 
 class GooglePlacesAPI {
 
@@ -16,9 +19,9 @@ class GooglePlacesAPI {
  * Constructor
  *
  */
-	public function __construct() {
+	public function __construct($apiKey = null) {
 		//$this->controller = $collection->getController();
-		$this->apiKey = Configure::read('GooglePlaces.key');
+		$this->apiKey = ($apiKey == null) ? Configure::read('GooglePlaces.key') : $apiKey;
 		$this->HttpSocket = new HttpSocket();
 	}
 
@@ -26,8 +29,18 @@ class GooglePlacesAPI {
 		$key = $this->apiKey;
 		$parameters = Set::merge(compact("reference", "sensor", "key"), $optionnalParameters);
 		debug($parameters);
-		$request = $this->HttpSocket->get(self::PLACE_DETAIL_URL . $output, $parameters);
-		debug($request);
+		$request = new GooglePlacesRequest(self::PLACE_DETAIL_URL, $output, $parameters);
+		try {
+			$response = $request->send();
+		}
+		catch(GooglePlacesException $e) {
+			die($e->getMessage());
+		}
+		var_dump($response->data);
+	}
+
+	private function request($url) {
+		
 	}
 
 }
