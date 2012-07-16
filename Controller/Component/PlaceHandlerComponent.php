@@ -25,7 +25,6 @@ class PlaceHandlerComponent extends Component {
 	}
 
 	public function savePlace($place) {
-		$place = json_decode($place);
 		if(!$this->controller->loadModel('GooglePlaces.Place')) {
 			throw new LoadModelException(array(
 				'model' => 'GooglePlaces.Place',
@@ -35,7 +34,15 @@ class PlaceHandlerComponent extends Component {
 		/* Check if place already exists in db */
 		if($this->controller->Place->isAlreadyExists($place->id)) {
 			/* Check for update id */
-			$this->googlePlacesAPI->detail($place->reference);
+			$placeDetails = $this->googlePlacesAPI->detail($place->reference);
+			if($placeDetails->id != $place->id) {
+
+				$this->controller->Place->updatePlaceId($place->id, $placeDetails->id);
+			}
+		}
+		else { /* Else add the place */
+			$this->controller->loadModel('GooglePlaces.PlaceTypesPlace');
+			$this->controller->PlaceTypesPlace->savePlaceAndTypes($place);
 		}
 	}
 

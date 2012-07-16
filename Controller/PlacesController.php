@@ -14,8 +14,10 @@ class PlacesController extends GooglePlacesAppController {
 		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
-		
-		$this->PlaceHandler->savePlace($_POST['place']);
+
+		$_POST['place'] = str_replace(array('"$a"', '"ab"'), array('"lat"', '"lng"'), $_POST['place']);
+		$place = json_decode($_POST['place']);
+		$this->PlaceHandler->savePlace($place);
 	}
 
 }

@@ -9,28 +9,29 @@ class GooglePlacesRequest {
 	public $output = "json";
 	public $parameters = array();
 
-	public function __construct($url, $output, $parameters) {
+	public function send($url, $output, $parameters) {
 		$this->output = $output;
 		$this->parameters = $parameters;
 		$this->url = $this->buildRequest($url);
-	}
-
-	public function send() {
 		$easyCurlRequest = new EasyCurlRequest($this->url, EasyCurlRequestType::GET);
 		$easyCurlRequest->AddHeader(new EasyCurlHeader('Content-Type', 'application/' . $this->output));
 		$easyCurlRequest->SetAutoReferer();
-		$executionResult = $easyCurlRequest->Execute();
-		if($executionResult instanceof EasyCurlResponse) {
-			debug($executionResult->ResposeBody);
-			return new GooglePlacesResponse($executionResult->ResposeBody, $this->output);
+		try {
+			$executionResult = $easyCurlRequest->Execute();
+			if($executionResult instanceof EasyCurlResponse) {
+				return new GooglePlacesResponse($executionResult->ResposeBody, $this->output);
+			}
+			else if ($executionResult instanceof EasyCurlError)
+			{
+			    throw new GooglePlacesException(array(
+			    	$executionResult->ErrorNumber,
+			    	$executionResult->ErrorMessage,
+			    	$executionResult->ErrorShortDescription
+		    	));
+			}
 		}
-		else if ($executionResult instanceof EasyCurlError)
-		{
-		    throw new GooglePlacesException(array(
-		    	$executionResult->ErrorNumber,
-		    	$executionResult->ErrorMessage,
-		    	$executionResult->ErrorShortDescription
-	    	));
+		catch(GooglePlacesException $e) {
+			die($e->getMessage());
 		}
 	}
 

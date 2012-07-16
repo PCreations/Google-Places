@@ -12,7 +12,9 @@ class GooglePlacesResponse {
 		switch($output) {
 			case "json":
 			default:
-				return json_decode($data);
+				$data = json_decode($data);
+				return $data;
+				break;
 		}
 	}
 
