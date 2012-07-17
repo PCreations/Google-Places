@@ -22,6 +22,10 @@ class PlaceHandlerComponent extends Component {
 		$this->googlePlacesAPI = new GooglePlacesAPI(Configure::read('GooglePlaces.key'));
 	}
 
+	public function initAutocompleteForm() {
+		$this->controller->set('countries', $this->controller->{$this->controller->modelClass}->getCountriesList());
+	}
+
 	public function savePlace($place) {
 		if(!$this->controller->loadModel('GooglePlaces.Place')) {
 			throw new LoadModelException(array(

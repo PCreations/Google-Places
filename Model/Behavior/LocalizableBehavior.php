@@ -42,6 +42,10 @@ class LocalizableBehavior extends ModelBehavior {
 			)
 		));
 	}
+
+	public function getCountriesList($model) {
+		return $model->Localization->Place->Country->find('list');
+	}
 }
 
 ?>

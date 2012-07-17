@@ -19,5 +19,4 @@ class PlacesController extends GooglePlacesAppController {
 		$place = json_decode($_POST['place']);
 		$this->PlaceHandler->savePlace($place);
 	}
-
 }
