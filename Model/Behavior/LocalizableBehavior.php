@@ -29,18 +29,6 @@ class LocalizableBehavior extends ModelBehavior {
 			),
 			false
 		);
-
-		if(!$model->Behaviors->attached('Containable')) {
-			$model->Behaviors->attach('Containable', array('autoFields' => false));
-		}
-		$model->contain(array(
-			'Localization' => array(
-				'Place' => array(
-					'PlaceType',
-					'Country'
-				)
-			)
-		));
 	}
 
 	public function getCountriesList($model) {

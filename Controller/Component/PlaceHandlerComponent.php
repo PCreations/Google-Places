@@ -42,7 +42,7 @@ class PlaceHandlerComponent extends Component {
 				$place->id = $this->controller->Place->updatePlaceId($place->id, $placeDetails->id);
 			}
 		}
-		else { /* Else add the place */
+		else { /* Else let's add the place */
 			$this->controller->loadModel('GooglePlaces.PlaceTypesPlace');
 			$this->controller->PlaceTypesPlace->savePlaceAndTypes($place);
 		}
