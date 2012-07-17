@@ -21,18 +21,33 @@ class PlacesHelper extends AppHelper {
 		parent::__construct($view, $settings);
 		$this->view = $view;
 		$this->_autocompleteCallback = $this->Html->url($this->_autocompleteCallback);
+		
+	}
+
+	public function beforeRender($viewFile) {
+		if(!empty($this->Form->validationErrors['Localization'])) {
+			$this->Form->validationErrors['Localization'][]['place_id'] = $this->Form->validationErrors['Localization']['place_id'];
+			unset($this->Form->validationErrors['Localization']['place_id']);
+		}
 	}
 
 	public function autocomplete($countries, $iso2 = "AD") {
 		static $autocompleteInputsID = 0;
-		$autocompleteInputsID++;
 		$inputID = 'city_autocomplete_' . $autocompleteInputsID;
 		$countriesInput = 'countries_autocomplete_' . $autocompleteInputsID;
 		$countryID = 'country_id_autocomplete_' . $autocompleteInputsID;
+		$placeID = 'Localization.' . $autocompleteInputsID . '.place_id';
+		echo $this->Form->hidden($placeID, array('id' => $placeID));
+		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
-		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
+		debug($this->Form->isFieldError($placeID));
+		if($this->Form->isFieldError($placeID)) {
+			echo $this->Form->error($placeID);
+		}
+		
 		$this->_autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID);
+		$autocompleteInputsID++;
 	}
 
 	private function _autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID) {
@@ -43,7 +58,7 @@ class PlacesHelper extends AppHelper {
 				place.geometry.location.lng = place.geometry.location.lng();
 				return place;
 			}
-			
+
 			var options = {
 				types: ['(cities)'],
 				componentRestrictions: {country: '<?php echo $iso2;?>'}

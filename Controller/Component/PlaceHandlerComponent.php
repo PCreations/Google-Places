@@ -11,19 +11,32 @@ class PlaceHandlerComponent extends Component {
 
 	public $controller;
 
+	public $_defaults;
+
 /**
  * Constructor
  *
  * @param object Controller object
  */
 	public function __construct(ComponentCollection $collection, $settings) {
-		$this->controller = $collection->getController();
 		$this->_defaults = Set::merge($this->_defaults, $settings);
 		$this->googlePlacesAPI = new GooglePlacesAPI(Configure::read('GooglePlaces.key'));
 	}
 
-	public function initAutocompleteForm() {
-		$this->controller->set('countries', $this->controller->{$this->controller->modelClass}->getCountriesList());
+	public function startup(Controller $controller) {
+		$this->controller = $controller;
+		if(isset($this->_defaults['modelClass']))
+			$this->initAutocompleteForm($this->_defaults['modelClass']);
+		else
+			$this->initAutocompleteForm();
+	}
+
+	public function initAutocompleteForm($modelClass = false) {
+		$modelClass = ($modelClass === false) ? $this->controller->modelClass : $modelClass;
+		/*if(!$this->controller->{$modelClass}->Localization->validates()) {
+			debug($this->controller->{$modelClass}->Localization->validationErrors);
+		}*/
+		$this->controller->set('countries', $this->controller->{$modelClass}->getCountriesList());
 	}
 
 	public function savePlace($place) {

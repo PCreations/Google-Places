@@ -31,8 +31,41 @@ class LocalizableBehavior extends ModelBehavior {
 		);
 	}
 
-	public function getCountriesList($model) {
+	public function getCountriesList(Model $model) {
 		return $model->Localization->Place->Country->find('list');
+	}
+
+	/*public function beforeSave(Model $model) {
+		die(debug($model->data));
+		return false;
+	}*/
+
+	public function beforeValidate(Model $model) {
+		debug($model->data);
+		$data = array(
+			'Localization' => array(
+				'place_id' => $model->data[$model->alias]['Localization_place_id_0']
+			)
+		);
+		debug($data);
+		$model->Localization->set($data);
+		return $model->Localization->validates();
+	}
+
+	public function beforeSave(Model $model) {
+		return false;
+	}
+
+	public function afterSave(Model $model, $created) {
+
+		if($created) {
+			foreach($model->data['Localization'] as &$localization) {
+				$localization['foreign_key'] = $model->id;
+				$localization['model'] = $model->alias;
+			}
+			$model->Localization->create();
+			$model->Localization->save($model->data['Localization']);
+		}
 	}
 }
 
