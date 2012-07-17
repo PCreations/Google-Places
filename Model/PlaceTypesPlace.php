@@ -40,6 +40,7 @@ class PlaceTypesPlace extends GooglePlacesAppModel {
 		$listType = $this->PlaceType->find('list');
 		$list = (count($listType) >= count($place->types)) ? array_diff($listType, $place->types) : array_diff($place->types, $listType);
 		debug($list);
+		debug($place);
 		$this->Place->create();
 		if($this->Place->save(
 			array(
