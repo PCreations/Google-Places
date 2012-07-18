@@ -44,7 +44,6 @@ class PlaceHandlerComponent extends Component {
 	}
 
 	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
-		$input .= ' ' . $cityName;
 		$optionnalParameters = array(
 			'components' => 'country:' . strtolower($iso2),
 			'type' => 'establishment',
@@ -52,6 +51,14 @@ class PlaceHandlerComponent extends Component {
 			'radius' => $radius
 		);
 		$predictions = $this->googlePlacesAPI->autocomplete($input, $sensor = false, $optionnalParameters);
+		
+		/* If there are predictions, cityName is append to input in order to restrict results */
+		if(!empty($predictions)) {
+			$newPredictions = $this->googlePlacesAPI->autocomplete($input.' '.$cityName, $sensor = false, $optionnalParameters);
+			if(!empty($newPredictions))
+				$predictions = $newPredictions;
+		}
+
 		$restrictedPredictions = array();
 		foreach($predictions as $prediction) {
 			//$placeDetail = $this->googlePlacesAPI->detail($prediction->reference);
@@ -72,7 +79,8 @@ class PlaceHandlerComponent extends Component {
 				}
 			}*/
 		}
-		return ($force === false) ? (empty($restrictedPredictions) ? array('id' => '-1', 'label' => __('No results')) : $restrictedPredictions) : $predictions;
+		//$restrictedPredictions = $predictions;
+		return ($force === false) ? (empty($restrictedPredictions) ? array('id' => '-1', 'label' => __('No results for ' . $input)) : $restrictedPredictions) : $predictions;
 	}
 
 	public function savePlace($place) {
