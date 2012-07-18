@@ -24,20 +24,13 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function beforeRender($viewFile) {
-		if(!empty($this->Form->validationErrors['Localization'])) {
-			$this->Form->validationErrors['Localization'][]['place_id'] = $this->Form->validationErrors['Localization']['place_id'];
-			unset($this->Form->validationErrors['Localization']['place_id']);
-		}
-	}
-
 	public function autocomplete($countries, $iso2 = "AD") {
 		static $autocompleteInputsID = 0;
 		$inputID = 'city_autocomplete_' . $autocompleteInputsID;
 		$countriesInput = 'countries_autocomplete_' . $autocompleteInputsID;
 		$countryID = 'country_id_autocomplete_' . $autocompleteInputsID;
 		$placeID = 'Localization.' . $autocompleteInputsID . '.place_id';
-		echo $this->Form->hidden($placeID, array('id' => $placeID));
+		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => 'placeID' . $autocompleteInputsID));
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
@@ -46,11 +39,11 @@ class PlacesHelper extends AppHelper {
 			echo $this->Form->error($placeID);
 		}
 		
-		$this->_autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID);
+		$this->_autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, 'placeID' . $autocompleteInputsID);
 		$autocompleteInputsID++;
 	}
 
-	private function _autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID) {
+	private function _autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, $placeIDClass) {
 		$this->Html->scriptStart(array('inline' => false));
 		?>
 			function addLatLng(place) {
@@ -75,6 +68,7 @@ class PlacesHelper extends AppHelper {
 				var place = autocomplete.getPlace();
 				place = addLatLng(place);
 				console.log(place);
+				$('.<?php echo $placeIDClass;?>').val(place.id);
 				$.post("<?php echo $this->_autocompleteCallback;?>", {place: JSON.stringify(place)});
 			});
 

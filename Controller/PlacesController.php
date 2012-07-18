@@ -6,7 +6,7 @@ App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
  */
 class PlacesController extends GooglePlacesAppController {
 
-	public $components = array('RequestHandler', 'GooglePlaces.PlaceHandler');
+	public $components = array('RequestHandler', 'GooglePlaces.PlaceHandler' => array('initForm' => false));
 
 	public function handleAutocomplete() {
 		$this->autoRender = false;

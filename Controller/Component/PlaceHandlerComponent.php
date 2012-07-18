@@ -11,7 +11,9 @@ class PlaceHandlerComponent extends Component {
 
 	public $controller;
 
-	public $_defaults;
+	public $_defaults = array(
+		'initForm' => true
+	);
 
 /**
  * Constructor
@@ -25,10 +27,12 @@ class PlaceHandlerComponent extends Component {
 
 	public function startup(Controller $controller) {
 		$this->controller = $controller;
-		if(isset($this->_defaults['modelClass']))
-			$this->initAutocompleteForm($this->_defaults['modelClass']);
-		else
-			$this->initAutocompleteForm();
+		if($this->_defaults['initForm']) {
+			if(isset($this->_defaults['modelClass']))
+				$this->initAutocompleteForm($this->_defaults['modelClass']);
+			else
+				$this->initAutocompleteForm();
+		}
 	}
 
 	public function initAutocompleteForm($modelClass = false) {

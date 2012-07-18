@@ -41,19 +41,14 @@ class LocalizableBehavior extends ModelBehavior {
 	}*/
 
 	public function beforeValidate(Model $model) {
-		debug($model->data);
-		$data = array(
-			'Localization' => array(
-				'place_id' => $model->data[$model->alias]['Localization_place_id_0']
-			)
-		);
-		debug($data);
-		$model->Localization->set($data);
+		debug($model->data['Localization']);
+		$model->Localization->set(array('Localization' => $model->data['Localization']));
+		debug($model->Localization->data);
 		return $model->Localization->validates();
 	}
 
 	public function beforeSave(Model $model) {
-		return false;
+		
 	}
 
 	public function afterSave(Model $model, $created) {
