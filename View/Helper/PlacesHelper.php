@@ -112,13 +112,13 @@ class PlacesHelper extends AppHelper {
 					var place = autocomplete.getPlace();
 					console.log(place);
 					place = addLatLng(place);
-					console.log('.' + input['classPlaceID']);
 					$('.' + input['classPlaceID']).val(place.id);
 					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				});
 
 				$('#' + input['countriesInput']).change(function() {
-					var countryISO = $('#' + input['countriesInput'] + 'option:selected').val();
+					var countryISO = $('#' + input['countriesInput'] + ' option:selected').val();
+					console.log('CountryISO = '+countryISO);
 					$('#' + input['countryID']).val(countryISO);
 					autocomplete.setComponentRestrictions({country: ''+countryISO+''});
 				});
