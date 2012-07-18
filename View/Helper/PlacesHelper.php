@@ -18,6 +18,12 @@ class PlacesHelper extends AppHelper {
 		'plugin' => 'google_places'
 	);
 
+	protected $_establishmentAutocompleteCallback = array(
+		'controller' => 'places',
+		'action' => 'handleEstablishmentAutocomplete',
+		'plugin' => 'google_places'
+	);
+
 	public function __construct(View $view, $settings = array()) {
 		parent::__construct($view, $settings);
 		$this->view = $view;
@@ -41,17 +47,37 @@ class PlacesHelper extends AppHelper {
 
 		if($type == 'city')
 			$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
-		else if($type == 'establishement')
-			$this->establishementAutocomplete(compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID"));
+		else if($type == 'establishment')
+			$this->establishmentAutocomplete(compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID"));
 
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}
 	}
 
-	public function establishementAutocomplete($autocompleteInfos) {
+	public function establishmentAutocomplete($autocompleteInfos) {
+		extract($autocompleteInfos);
 		$this->Html->scriptStart(array('inline' => false));
-			echo $this->Js->request();
+		?>
+			var input = $('#<?php echo $inputID;?>');
+			input.autocomplete({
+				minLength:2,
+				source: function( request, response ) {
+					var term = request.term;
+					if ( term in cache ) {
+						response( cache[ term ] );
+						return;
+					}
+
+					lastXhr = $.getJSON( "<?php echo $this->_establishmentAutocompleteCallback; ?>", request, function( data, status, xhr ) {
+						cache[ term ] = data;
+						if ( xhr === lastXhr ) {
+							response( data );
+						}
+					});
+				},
+			});
+		<?php
 		$this->Html->scriptEnd();
 	}
 

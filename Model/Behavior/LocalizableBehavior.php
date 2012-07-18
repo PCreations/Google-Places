@@ -32,7 +32,9 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function getCountriesList(Model $model) {
-		return $model->Localization->Place->Country->find('list');
+		return $model->Localization->Place->Country->find('list', array(
+			'order' => 'name'
+		));
 	}
 
 	/*public function beforeSave(Model $model) {

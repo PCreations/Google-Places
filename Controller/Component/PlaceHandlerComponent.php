@@ -43,6 +43,28 @@ class PlaceHandlerComponent extends Component {
 		$this->controller->set('countries', $this->controller->{$modelClass}->getCountriesList());
 	}
 
+	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000) {
+		$optionnalParameters = array(
+			'components' => 'country:' . strtolower($iso2),
+			'type' => 'establishment',
+			'location' => "$lat,$lng",
+			'radius' => $radius
+		);
+		$predictions = $this->googlePlacesAPI->autocomplete($input, $sensor = false, $optionnalParameters);
+		$restrictedPredictions = array();
+		foreach($predictions as $prediction) {
+			$placeDetail = $this->googlePlacesAPI->detail($prediction->reference);
+			foreach($placeDetail->address_components as $addressComponent) {
+				$longName = $addressComponent->long_name;
+				if($addressComponent->long_name == $cityName) {
+					if(array_search('locality', $addressComponent->types) !== false)
+						$restrictedPredictions[] = $prediction;
+				}
+			}
+		}
+		return $restrictedPredictions;
+	}
+
 	public function savePlace($place) {
 		if(!$this->controller->loadModel('GooglePlaces.Place')) {
 			throw new LoadModelException(array(

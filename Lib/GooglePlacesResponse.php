@@ -4,7 +4,8 @@ class GooglePlacesResponse {
 	
 	public $data = array();
 
-	public function __construct($data, $output) {
+	public function __construct($url, $data, $output) {
+		$this->url = $url;
 		$this->data = $this->parseData($data, $output);
 	}
 

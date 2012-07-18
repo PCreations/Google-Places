@@ -19,11 +19,12 @@ class GooglePlacesRequest {
 		try {
 			$executionResult = $easyCurlRequest->Execute();
 			if($executionResult instanceof EasyCurlResponse) {
-				return new GooglePlacesResponse($executionResult->ResposeBody, $this->output);
+				return new GooglePlacesResponse($this->url, $executionResult->ResposeBody, $this->output);
 			}
 			else if ($executionResult instanceof EasyCurlError)
 			{
 			    throw new GooglePlacesException(array(
+			    	$this->url,
 			    	$executionResult->ErrorNumber,
 			    	$executionResult->ErrorMessage,
 			    	$executionResult->ErrorShortDescription
