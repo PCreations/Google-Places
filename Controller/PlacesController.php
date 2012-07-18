@@ -25,8 +25,8 @@ class PlacesController extends GooglePlacesAppController {
 		}
 
 		$cityID = $_POST['cityID'];*/
-
-		$predictions = $this->PlaceHandler->getEstablishmentPredictionsByCity("Zéni", "fr", "Paris", 48.856614, 2.3522219);
+		extract($_GET);
+		$predictions = $this->PlaceHandler->getEstablishmentPredictionsByCity($term, $iso, $cityName, $lat, $lng);
 		$this->set(compact("predictions"));
 	}
 }

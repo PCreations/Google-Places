@@ -43,7 +43,7 @@ class PlaceHandlerComponent extends Component {
 		$this->controller->set('countries', $this->controller->{$modelClass}->getCountriesList());
 	}
 
-	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000) {
+	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
 		$optionnalParameters = array(
 			'components' => 'country:' . strtolower($iso2),
 			'type' => 'establishment',
@@ -71,7 +71,7 @@ class PlaceHandlerComponent extends Component {
 				}
 			}*/
 		}
-		return $restrictedPredictions;
+		return ($force === false) ? (empty($restrictedPredictions) ? array('id' => '-1', 'label' => __('No results')) : $restrictedPredictions) : $predictions;
 	}
 
 	public function savePlace($place) {

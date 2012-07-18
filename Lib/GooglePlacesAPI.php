@@ -40,7 +40,7 @@ class GooglePlacesAPI {
 
 	private function sendRequest($url, $parameters, $output) {
 		$response = $this->GooglePlacesRequest->send($url, $output, $parameters);
-		//var_dump($response->url);
+		var_dump($response->url);
 		return $response->data;
 	}
 

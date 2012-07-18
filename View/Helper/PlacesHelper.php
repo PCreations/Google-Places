@@ -28,6 +28,7 @@ class PlacesHelper extends AppHelper {
 		parent::__construct($view, $settings);
 		$this->view = $view;
 		$this->_cityAutocompleteCallback = $this->url($this->_cityAutocompleteCallback);
+		$this->_establishmentAutocompleteCallback = $this->url($this->_establishmentAutocompleteCallback);
 		
 	}
 
@@ -40,50 +41,73 @@ class PlacesHelper extends AppHelper {
 		$countryID = 'country_id_autocomplete';
 		$placeID = "Localization.place_id";
 		$classPlaceID = 'placeID';
+		
 		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
+		
+		if($type == 'establishment')
+			echo $this->Form->input('establishmentAutocomplete', array(
+				'class' => 'establishmentAutocomplete',
+				'div' => array(
+					'style' => 'display: none;',
+					'class' => 'divEstablishment'
+				)
+			));
 
-		if($type == 'city')
-			$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
-		else if($type == 'establishment')
-			$this->establishmentAutocomplete(compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID"));
+		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
+		$this->_autocompleteJavascript();
+
+		if($type == 'establishment')
+			$this->establishmentAutocomplete($countriesInput, $countryID);
 
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}
 	}
 
-	public function establishmentAutocomplete($autocompleteInfos) {
-		extract($autocompleteInfos);
+	public function establishmentAutocomplete($countriesInput, $countryID) {
 		$this->Html->scriptStart(array('inline' => false));
 		?>
-			var input = $('#<?php echo $inputID;?>');
-			input.autocomplete({
-				minLength:2,
-				source: function( request, response ) {
-					var term = request.term;
-					if ( term in cache ) {
-						response( cache[ term ] );
-						return;
-					}
+			google.maps.event.addListener(autocomplete, 'place_changed', function() {
+				$('.divEstablishment').show();
+				place = autocomplete.getPlace();
+				console.log("in establishment");
+				console.log(place);
 
-					lastXhr = $.getJSON( "<?php echo $this->_establishmentAutocompleteCallback; ?>", request, function( data, status, xhr ) {
-						cache[ term ] = data;
-						if ( xhr === lastXhr ) {
-							response( data );
+				var input = $('.establishmentAutocomplete');
+				var cache = {},lastXhr;
+				input.autocomplete({
+					minLength:2,
+					source: function( request, response ) {
+						request.iso = $('#<?php echo $countryID;?>').val();
+						console.log("ISO = "+request.iso);
+						request.cityName = place.name;
+						request.lat = place.geometry.location.lat;
+						request.lng = place.geometry.location.lng;
+						var term = request.term;
+						if ( term in cache ) {
+							response( cache[ term ] );
+							return;
 						}
-					});
-				},
+
+						lastXhr = $.getJSON( "<?php echo $this->_establishmentAutocompleteCallback; ?>", request, function( data, status, xhr ) {
+							cache[ term ] = data;
+							if ( xhr === lastXhr ) {
+								response( data );
+							}
+						});
+					},
+				});
 			});
 		<?php
 		$this->Html->scriptEnd();
 	}
 
-	public function afterRender($viewFile) {
+	/*public function afterRender($viewFile) {
 		$this->_autocompleteJavascript();
-	}
+	}*/
 
 	private function _autocompleteJavascript() {
 		$this->Html->scriptStart(array('inline' => false));
