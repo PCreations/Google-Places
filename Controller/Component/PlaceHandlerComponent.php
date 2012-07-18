@@ -53,14 +53,23 @@ class PlaceHandlerComponent extends Component {
 		$predictions = $this->googlePlacesAPI->autocomplete($input, $sensor = false, $optionnalParameters);
 		$restrictedPredictions = array();
 		foreach($predictions as $prediction) {
-			$placeDetail = $this->googlePlacesAPI->detail($prediction->reference);
-			foreach($placeDetail->address_components as $addressComponent) {
+			//$placeDetail = $this->googlePlacesAPI->detail($prediction->reference);
+			if(stripos($prediction->description, $cityName) !== false) {
+				$restrictedPredictions[] = array(
+							'id' => $prediction->id,
+							'label' => $prediction->description
+						);	
+			}
+			/*foreach($placeDetail->address_components as $addressComponent) {
 				$longName = $addressComponent->long_name;
 				if($addressComponent->long_name == $cityName) {
 					if(array_search('locality', $addressComponent->types) !== false)
-						$restrictedPredictions[] = $prediction;
+						$restrictedPredictions[] = array(
+							'id' => $prediction->id,
+							'label' => $prediction->description
+						);	
 				}
-			}
+			}*/
 		}
 		return $restrictedPredictions;
 	}
