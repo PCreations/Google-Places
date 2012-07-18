@@ -12,21 +12,24 @@ class PlacesHelper extends AppHelper {
 
 	const PLACES_API_URL = "http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false";
 	
-	protected $_autocompleteCallback = array(
+	protected $_cityAutocompleteCallback = array(
 		'controller' => 'places',
-		'action' => 'handleAutocomplete',
+		'action' => 'handleCityAutocomplete',
 		'plugin' => 'google_places'
 	);
 
 	public function __construct(View $view, $settings = array()) {
 		parent::__construct($view, $settings);
 		$this->view = $view;
-		$this->_autocompleteCallback = $this->Html->url($this->_autocompleteCallback);
+		$this->_cityAutocompleteCallback = $this->url($this->_cityAutocompleteCallback);
 		
 	}
 
-	public function autocomplete($countries, $iso2 = "AD") {
-		$inputID = 'city_autocomplete';
+	public function autocomplete($countries, $options = array('type' => 'city'), $iso2 = "AD") {
+		if(!isset($options['type']))
+			return false;
+		$type = $options['type'];
+		$inputID = $type . '_autocomplete';
 		$countriesInput = 'countries_autocomplete';
 		$countryID = 'country_id_autocomplete';
 		$placeID = "Localization.place_id";
@@ -35,11 +38,21 @@ class PlacesHelper extends AppHelper {
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
-		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
+
+		if($type == 'city')
+			$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
+		else if($type == 'establishement')
+			$this->establishementAutocomplete(compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID"));
 
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}
+	}
+
+	public function establishementAutocomplete($autocompleteInfos) {
+		$this->Html->scriptStart(array('inline' => false));
+			echo $this->Js->request();
+		$this->Html->scriptEnd();
 	}
 
 	public function afterRender($viewFile) {
@@ -75,7 +88,7 @@ class PlacesHelper extends AppHelper {
 					place = addLatLng(place);
 					console.log('.' + input['classPlaceID']);
 					$('.' + input['classPlaceID']).val(place.id);
-					$.post("<?php echo $this->_autocompleteCallback;?>", {place: JSON.stringify(place)});
+					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				});
 
 				$('#' + input['countriesInput']).change(function() {
