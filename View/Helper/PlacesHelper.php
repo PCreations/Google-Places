@@ -4,6 +4,7 @@ class PlacesHelper extends AppHelper {
 	
 	public $helpers = array('Html', 'Js', 'Form');
 	public $view;
+	public $autocompleteInputs = array();
 
 	protected $_settings = array(
 		'key' => null
@@ -24,24 +25,28 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function autocomplete($alias, $countries, $iso2 = "AD") {
-		$inputID = 'city_autocomplete_' . $alias;
-		$countriesInput = 'countries_autocomplete_' . $alias;
-		$countryID = 'country_id_autocomplete_' . $alias;
-		$placeID = "Localization.$alias.place_id";
-		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => 'placeID_' . $alias));
+	public function autocomplete($countries, $iso2 = "AD") {
+		$inputID = 'city_autocomplete';
+		$countriesInput = 'countries_autocomplete';
+		$countryID = 'country_id_autocomplete';
+		$placeID = "Localization.place_id";
+		$classPlaceID = 'placeID';
+		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
-		debug($this->Form->isFieldError($inputID));
+		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
+
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}
-		
-		$this->_autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, 'placeID_' . $alias);
 	}
 
-	private function _autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, $placeIDClass) {
+	public function afterRender($viewFile) {
+		$this->_autocompleteJavascript();
+	}
+
+	private function _autocompleteJavascript() {
 		$this->Html->scriptStart(array('inline' => false));
 		?>
 			function addLatLng(place) {
@@ -50,31 +55,36 @@ class PlacesHelper extends AppHelper {
 				return place;
 			}
 
-			var options = {
-				types: ['(cities)'],
-				componentRestrictions: {country: '<?php echo $iso2;?>'}
-			}
+			var inputs = <?php echo $this->Js->value($this->autocompleteInputs);?>;
+			console.log(inputs);
 
-			/*var defaultBounds = new google.maps.LatLngBounds(
-				new google.maps.LatLng()
-			);*/
+			$.each(inputs, function(key, input) {
+				console.log("input");
+				console.log(input);
+				var options = {
+					types: ['(cities)'],
+					componentRestrictions: {country: input['iso2']}
+				};
 
-			var input = document.getElementById('<?php echo $inputID;?>');
+				var inputField = document.getElementById(input['inputID']);
 
-			autocomplete = new google.maps.places.Autocomplete(input, options);
-			google.maps.event.addListener(autocomplete, 'place_changed', function() {
-				var place = autocomplete.getPlace();
-				console.log(place);
-				place = addLatLng(place);
-				$('.<?php echo $placeIDClass;?>').val(place.id);
-				$.post("<?php echo $this->_autocompleteCallback;?>", {place: JSON.stringify(place)});
+				autocomplete = new google.maps.places.Autocomplete(inputField, options);
+				google.maps.event.addListener(autocomplete, 'place_changed', function() {
+					var place = autocomplete.getPlace();
+					console.log(place);
+					place = addLatLng(place);
+					console.log('.' + input['classPlaceID']);
+					$('.' + input['classPlaceID']).val(place.id);
+					$.post("<?php echo $this->_autocompleteCallback;?>", {place: JSON.stringify(place)});
+				});
+
+				$('#' + input['countriesInput']).change(function() {
+					var countryISO = $('#' + input['countriesInput'] + 'option:selected').val();
+					$('#' + input['countryID']).val(countryISO);
+					autocomplete.setComponentRestrictions({country: ''+countryISO+''});
+				});
 			});
-
-			$('#<?php echo $countriesInput;?>').change(function() {
-				var countryISO = $('#<?php echo $countriesInput;?> option:selected').val();
-				$('#<?php echo $countryID;?>').val(countryISO);
-				autocomplete.setComponentRestrictions({country: ''+countryISO+''});
-			});
+			
 		<?php
 		$this->Html->scriptEnd();
 	}
