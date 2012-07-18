@@ -44,6 +44,7 @@ class PlaceHandlerComponent extends Component {
 	}
 
 	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
+		$input .= ' ' . $cityName;
 		$optionnalParameters = array(
 			'components' => 'country:' . strtolower($iso2),
 			'type' => 'establishment',
