@@ -41,14 +41,25 @@ class LocalizableBehavior extends ModelBehavior {
 	}*/
 
 	public function beforeValidate(Model $model) {
+		/*$model->validate['localization_place_id'] = array(
+			'notempty' => array(
+				'rule' => array('notempty'),
+				'message' => 'Place id not valid'
+			)
+		);*/
 		debug($model->data['Localization']);
-		$model->Localization->set(array('Localization' => $model->data['Localization']));
-		debug($model->Localization->data);
-		return $model->Localization->validates();
+		foreach($model->data['Localization'] as $alias => $place) {
+			debug($place);
+			debug(empty($place['place_id']));
+			if(empty($place['place_id'])) {
+				$model->invalidate('city_autocomplete_' . $alias, 'Place id not valid');
+			}
+		}
+		return true;
 	}
 
 	public function beforeSave(Model $model) {
-		
+		return false;
 	}
 
 	public function afterSave(Model $model, $created) {

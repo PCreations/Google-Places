@@ -24,23 +24,21 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function autocomplete($countries, $iso2 = "AD") {
-		static $autocompleteInputsID = 0;
-		$inputID = 'city_autocomplete_' . $autocompleteInputsID;
-		$countriesInput = 'countries_autocomplete_' . $autocompleteInputsID;
-		$countryID = 'country_id_autocomplete_' . $autocompleteInputsID;
-		$placeID = 'Localization.' . $autocompleteInputsID . '.place_id';
-		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => 'placeID' . $autocompleteInputsID));
+	public function autocomplete($alias, $countries, $iso2 = "AD") {
+		$inputID = 'city_autocomplete_' . $alias;
+		$countriesInput = 'countries_autocomplete_' . $alias;
+		$countryID = 'country_id_autocomplete_' . $alias;
+		$placeID = "Localization.$alias.place_id";
+		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => 'placeID_' . $alias));
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
-		debug($this->Form->isFieldError($placeID));
+		debug($this->Form->isFieldError($inputID));
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}
 		
-		$this->_autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, 'placeID' . $autocompleteInputsID);
-		$autocompleteInputsID++;
+		$this->_autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, 'placeID_' . $alias);
 	}
 
 	private function _autocompleteJavascript($countriesInput, $countryID, $iso2, $inputID, $placeIDClass) {
@@ -66,8 +64,8 @@ class PlacesHelper extends AppHelper {
 			autocomplete = new google.maps.places.Autocomplete(input, options);
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
 				var place = autocomplete.getPlace();
-				place = addLatLng(place);
 				console.log(place);
+				place = addLatLng(place);
 				$('.<?php echo $placeIDClass;?>').val(place.id);
 				$.post("<?php echo $this->_autocompleteCallback;?>", {place: JSON.stringify(place)});
 			});
