@@ -9,14 +9,14 @@ class PlacesController extends GooglePlacesAppController {
 	public $components = array('RequestHandler', 'GooglePlaces.PlaceHandler' => array('initForm' => false));
 
 	public function handleCityAutocomplete() {
-		$this->autoRender = false;
+		/*$this->autoRender = false;
 		
 		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
 
 		$place = json_decode($_POST['place']);
-		$this->PlaceHandler->savePlace($place);
+		$this->PlaceHandler->savePlace($place);*/
 	}
 
 	public function handleEstablishmentAutocomplete() {
