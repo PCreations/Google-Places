@@ -40,9 +40,12 @@ class PlacesHelper extends AppHelper {
 		$countriesInput = 'countries_autocomplete';
 		$countryID = 'country_id_autocomplete';
 		$placeID = "Localization.place_id";
+		$placeReference = "Localization.place_reference";
 		$classPlaceID = 'placeID';
+		$classPlaceReference = 'placeReference';
 		
 		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
+		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference));
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
@@ -56,7 +59,7 @@ class PlacesHelper extends AppHelper {
 				)
 			));
 
-		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "classPlaceID");
+		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "placeReference", "classPlaceID", "classPlaceReference");
 		$this->_autocompleteJavascript();
 
 		if($type == 'establishment')
@@ -137,6 +140,7 @@ class PlacesHelper extends AppHelper {
 					console.log(place);
 					place = addLatLng(place);
 					$('.' + input['classPlaceID']).val(place.id);
+					$('.' + input['classPlaceReference']).val(place.reference);
 					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				});
 

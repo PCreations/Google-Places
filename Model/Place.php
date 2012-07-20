@@ -74,18 +74,20 @@ class Place extends GooglePlacesAppModel {
 		)
 	);
 
-	public function savePlace($place) {
-		/* Check if place already exists in db */
-		if($this->isAlreadyExists($place->id)) {
-			/* Check for update id */
-			$placeDetails = $this->gpAPI->detail($place->reference);
-			if($placeDetails->id != $place->id) {
+	public function placeRoutine($placeID, $placeReference) {
+		$placeDetails = $this->gpAPI()->detail($placeReference);
 
-				$place->id = $this->updatePlaceId($place->id, $placeDetails->id);
+		/* Check if place already exists in db */
+		if($this->isAlreadyExists($placeID)) {
+			/* Check for update id */
+			if($placeDetails->id != $placeID) {
+
+				$placeID = $this->updatePlaceId($placeID, $placeDetails->id);
 			}
 		}
 		else { /* Else add the place */
-			$this->PlaceTypesPlace->savePlaceAndTypes($place);
+			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
+			$PlaceTypesPlace->savePlaceAndTypes($placeDetails);
 		}
 	}
 

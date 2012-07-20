@@ -64,7 +64,11 @@ class LocalizableBehavior extends ModelBehavior {
 
 	public function afterSave(Model $model, $created) {
 		if($created || !isset($model->data['Localization']['foreign_key'])) {
-			/* If place not already exists save it */
+			/* Check for saving place if not already exists in db or updating place id */
+			$model->Localization->Place->placeRoutine($model->data['Localization']['place_id'], $model->data['Localization']['place_reference']);
+			unset($model->data['Localization']['place_reference']);
+			
+			/* Save localized association */
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;
 			$model->Localization->create();
