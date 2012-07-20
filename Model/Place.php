@@ -9,7 +9,7 @@ App::uses('GooglePlacesAppModel', 'GooglePlaces.Model');
  */
 class Place extends GooglePlacesAppModel {
 
-	public $actsAs = array('Containable');
+	public $actsAs = array('Containable', 'GooglePlaces.GooglePlacesAPI');
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 
@@ -73,6 +73,21 @@ class Place extends GooglePlacesAppModel {
 			'insertQuery' => ''
 		)
 	);
+
+	public function savePlace($place) {
+		/* Check if place already exists in db */
+		if($this->isAlreadyExists($place->id)) {
+			/* Check for update id */
+			$placeDetails = $this->GooglePlacesAPI->api->detail($place->reference);
+			if($placeDetails->id != $place->id) {
+
+				$place->id = $this->updatePlaceId($place->id, $placeDetails->id);
+			}
+		}
+		else { /* Else add the place */
+			$this->PlaceTypesPlace->savePlaceAndTypes($place);
+		}
+	}
 
 	public function isAlreadyExists($id) {
 		$result = $this->find('first', array(
