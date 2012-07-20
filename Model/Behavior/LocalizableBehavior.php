@@ -59,13 +59,16 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function afterSave(Model $model, $created) {
-		if($created) {
+		if($created || !isset($model->data['Localization']['foreign_key'])) {
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;
 			$model->Localization->create();
 			$model->Localization->save(array(
 				'Localization' => $model->data['Localization']
 			));
+		}
+		else {
+			
 		}
 	}
 }

@@ -40,6 +40,9 @@ class PlaceHandlerComponent extends Component {
 		/*if(!$this->controller->{$modelClass}->Localization->validates()) {
 			debug($this->controller->{$modelClass}->Localization->validationErrors);
 		}*/
+		if(!$this->controller->{$modelClass}->Behaviors->attached('GooglePlaces.Localizable')) {
+			$this->controller->{$modelClass}->Behaviors->load('GooglePlaces.Localizable');
+		}
 		$this->controller->set('countries', $this->controller->{$modelClass}->getCountriesList());
 	}
 

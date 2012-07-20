@@ -20,11 +20,11 @@ class PlacesController extends GooglePlacesAppController {
 	}
 
 	public function handleEstablishmentAutocomplete() {
-		/*if(!$this->RequestHandler->isAjax()) {
+		
+		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
-
-		$cityID = $_POST['cityID'];*/
+		
 		extract($_GET);
 		$predictions = $this->PlaceHandler->getEstablishmentPredictionsByCity($term, $iso, $cityName, $lat, $lng);
 		$this->set(compact("predictions"));
