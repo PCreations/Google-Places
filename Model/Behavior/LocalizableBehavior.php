@@ -52,7 +52,7 @@ class LocalizableBehavior extends ModelBehavior {
 				$model->invalidate('city_autocomplete_' . $alias, 'Place id not valid');
 			}
 		}*/
-		if(isset($model->data['Localization']) {
+		if(isset($model->data['Localization'])) {
 			$model->Localization->set(array(
 				'Localization' => $model->data['Localization']
 			));
