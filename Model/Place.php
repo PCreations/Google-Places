@@ -78,7 +78,7 @@ class Place extends GooglePlacesAppModel {
 		/* Check if place already exists in db */
 		if($this->isAlreadyExists($place->id)) {
 			/* Check for update id */
-			$placeDetails = $this->GooglePlacesAPI->api->detail($place->reference);
+			$placeDetails = $this->gpAPI->detail($place->reference);
 			if($placeDetails->id != $place->id) {
 
 				$place->id = $this->updatePlaceId($place->id, $placeDetails->id);
@@ -103,6 +103,47 @@ class Place extends GooglePlacesAppModel {
 		$this->read(null, $oldId);
 		$this->set('id', $newId);
 		$this->save();
+	}
+
+	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
+		$optionnalParameters = array(
+			'components' => 'country:' . strtolower($iso2),
+			'type' => 'establishment',
+			'location' => "$lat,$lng",
+			'radius' => $radius
+		);
+		$predictions = $this->gpAPI()->autocomplete($input, $sensor = false, $optionnalParameters);
+		
+		/* If there are predictions, cityName is prepend to input in order to restrict results */
+		if(!empty($predictions)) {
+			$newPredictions = $this->gpAPI()->autocomplete($cityName . ' ' .$input, $sensor = false, $optionnalParameters);
+			if(!empty($newPredictions))
+				$predictions = $newPredictions;
+		}
+
+		$restrictedPredictions = array();
+		foreach($predictions as $prediction) {
+			//$placeDetail = $this->gpAPI()->detail($prediction->reference);
+			/* Check if city name is found in description TODO: regexp */
+			if(stripos($prediction->description, $cityName) !== false) {
+				$restrictedPredictions[] = array(
+							'id' => $prediction->id,
+							'label' => $prediction->description
+						);	
+			}
+			/*foreach($placeDetail->address_components as $addressComponent) {
+				$longName = $addressComponent->long_name;
+				if($addressComponent->long_name == $cityName) {
+					if(array_search('locality', $addressComponent->types) !== false)
+						$restrictedPredictions[] = array(
+							'id' => $prediction->id,
+							'label' => $prediction->description
+						);	
+				}
+			}*/
+		}
+		//$restrictedPredictions = $predictions;
+		return ($force === false) ? (empty($restrictedPredictions) ? array('id' => '-1', 'label' => __('No results for ' . $input)) : $restrictedPredictions) : $predictions;
 	}
 
 }

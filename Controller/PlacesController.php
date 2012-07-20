@@ -6,7 +6,7 @@ App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
  */
 class PlacesController extends GooglePlacesAppController {
 
-	public $components = array('RequestHandler', 'GooglePlaces.PlaceHandler' => array('initForm' => false));
+	public $components = array('RequestHandler');
 
 	public function handleCityAutocomplete() {
 		$this->autoRender = false;
@@ -26,7 +26,7 @@ class PlacesController extends GooglePlacesAppController {
 		}
 		
 		extract($_GET);
-		$predictions = $this->PlaceHandler->getEstablishmentPredictionsByCity($term, $iso, $cityName, $lat, $lng);
+		$predictions = $this->Place->getEstablishmentPredictionsByCity($term, $iso, $cityName, $lat, $lng);
 		$this->set(compact("predictions"));
 	}
 }
