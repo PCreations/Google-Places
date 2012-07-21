@@ -44,6 +44,10 @@ class PlacesHelper extends AppHelper {
 		$classPlaceID = 'placeID';
 		$classPlaceReference = 'placeReference';
 		$establishmentAutocomplete = 'Localization.establishment';
+		$establishmentID = 'Localization.establishment_id';
+		$establishmentReference = 'Localization.establishment_reference';
+		$classEstablishmentID = 'establishmentID';
+		$classEstablishmentReference = 'establishmentReference';
 		
 		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
 		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference));
@@ -51,7 +55,9 @@ class PlacesHelper extends AppHelper {
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		echo $this->Form->input($inputID, array('id' => $inputID));
 		
-		if($type == 'establishment')
+		if($type == 'establishment') {
+			echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $classEstablishmentID));
+			echo $this->Form->hidden($establishmentReference, array('id' => $establishmentReference, 'class' => $classEstablishmentReference));
 			echo $this->Form->input($establishmentAutocomplete, array(
 				'class' => 'establishmentAutocomplete',
 				'div' => array(
@@ -59,19 +65,22 @@ class PlacesHelper extends AppHelper {
 					'class' => 'divEstablishment'
 				)
 			));
+		}
 
 		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "placeReference", "classPlaceID", "classPlaceReference");
 		$this->_autocompleteJavascript();
 
 		if($type == 'establishment')
-			$this->establishmentAutocomplete($countriesInput, $countryID);
+			$this->establishmentAutocomplete(compact("countriesInput", "countryID", "establishmentID", "establishmentReference", "classEstablishmentID", "classEstablishmentReference"));
 
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}
 	}
 
-	public function establishmentAutocomplete($countriesInput, $countryID) {
+	public function establishmentAutocomplete($inputs) {
+		extract($inputs);
+
 		$this->Html->scriptStart(array('inline' => false));
 		?>
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
@@ -103,6 +112,11 @@ class PlacesHelper extends AppHelper {
 							}
 						});
 					},
+					select : function(event, ui){
+						var establishmentInfos = ui.item.id.split('|'); //[0] => id, [1] => reference
+						$('.<?php echo $classEstablishmentID;?>').val(establishmentInfos[0]);
+						$('.<?php echo $classEstablishmentReference;?>').val(establishmentInfos[1]);
+					}
 				});
 			});
 		<?php

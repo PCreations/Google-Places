@@ -38,7 +38,8 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function beforeSave(Model $model) {
-
+		die(debug($model->data));
+		return false;
 	}
 
 	public function beforeValidate(Model $model) {

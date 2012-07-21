@@ -129,7 +129,7 @@ class Place extends GooglePlacesAppModel {
 			/* Check if city name is found in description TODO: regexp */
 			if(stripos($prediction->description, $cityName) !== false) {
 				$restrictedPredictions[] = array(
-							'id' => $prediction->id,
+							'id' => $prediction->id . '|' . $prediction->reference,
 							'label' => $prediction->description
 						);	
 			}
