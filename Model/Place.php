@@ -75,20 +75,34 @@ class Place extends GooglePlacesAppModel {
 	);
 
 	public function placeRoutine($placeID, $placeReference) {
-		$placeDetails = $this->gpAPI()->detail($placeReference);
+		if(!$this->routine($placeID, $placeReference)) {
+			/* Add the place */
+			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
+			$PlaceTypesPlace->savePlaceAndTypes($this->gpAPI()->detail($placeReference));
+		}
+	}
+
+	public function establishmentRoutine($establishmentID, $establishmentReference, $placeID) {
+		if(!$this->routine($establishmentID, $establishmentReference)) {
+			/* Add the establishment */
+			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
+			$PlaceTypesPlace->saveEstablishment($this->gpAPI()->detail($establishmentReference), $placeID);
+		}
+	}
+
+	private function routine($id, $reference) {
+		$details = $this->gpAPI()->detail($reference);
 
 		/* Check if place already exists in db */
-		if($this->isAlreadyExists($placeID)) {
+		if($this->isAlreadyExists($id)) {
 			/* Check for update id */
-			if($placeDetails->id != $placeID) {
+			if($details->id != $id) {
 
-				$placeID = $this->updatePlaceId($placeID, $placeDetails->id);
+				$id = $this->updatePlaceId($id, $details->id);
 			}
+			return true;
 		}
-		else { /* Else add the place */
-			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
-			$PlaceTypesPlace->savePlaceAndTypes($placeDetails);
-		}
+		return false;
 	}
 
 	public function isAlreadyExists($id) {

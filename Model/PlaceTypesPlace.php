@@ -36,11 +36,23 @@ class PlaceTypesPlace extends GooglePlacesAppModel {
 		)
 	);
 
+	public function saveEstablishment($establishment, $place_id) {
+		$this->savePlaceAndTypes($establishment, $place_id);
+	}
+
 	public function savePlaceAndTypes($place, $place_id = null) {
 		$listType = $this->PlaceType->find('list');
-		$list = (count($listType) >= count($place->types)) ? array_diff($listType, $place->types) : array_diff($place->types, $listType);
-		debug($list);
+		//$list = (count($listType) >= count($place->types)) ? array_diff($listType, $place->types) : array_diff($place->types, $listType);
+		$typesToAdd = array();
+		foreach($place->types as $type) {
+			if(!in_array($type, $listType))
+				$typesToAdd[] = $type;
+		}
+		debug($place->types);
+		debug($listType);
+		debug($typesToAdd);
 		debug($place);
+		debug($place_id);
 		$this->Place->create();
 		if($this->Place->save(
 			array(
@@ -57,8 +69,8 @@ class PlaceTypesPlace extends GooglePlacesAppModel {
 					'place_id' => $place_id
 				),
 		))) {
-			if(!empty($list)) {
-				foreach($list as $placeType) {
+			if(!empty($typesToAdd)) {
+				foreach($typesToAdd as $placeType) {
 					$this->PlaceType->create();
 					if(!$this->PlaceType->save(array(
 						'PlaceType' => array(

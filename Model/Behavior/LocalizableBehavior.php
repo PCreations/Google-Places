@@ -38,8 +38,8 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function beforeSave(Model $model) {
-		die(debug($model->data));
-		return false;
+		/*die(debug($model->data));
+		return false;*/
 	}
 
 	public function beforeValidate(Model $model) {
@@ -76,6 +76,14 @@ class LocalizableBehavior extends ModelBehavior {
 		if($created || !isset($model->data['Localization']['foreign_key'])) {
 			/* Check for saving place if not already exists in db or updating place id */
 			$model->Localization->Place->placeRoutine($model->data['Localization']['place_id'], $model->data['Localization']['place_reference']);
+			
+			if(isset($model->data['Localization']['establishment_id'])) {
+				$model->Localization->Place->establishmentRoutine($model->data['Localization']['establishment_id'], $model->data['Localization']['establishment_reference'], $model->data['Localization']['place_id']);
+				$model->data['Localization']['place_id'] = $model->data['Localization']['establishment_id'];
+				unset($model->data['Localization']['establishment_id']);
+				unset($model->data['Localization']['establishment_reference']);
+			}
+
 			unset($model->data['Localization']['place_reference']);
 
 			/* Save localized association */

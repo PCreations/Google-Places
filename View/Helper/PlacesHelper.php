@@ -43,7 +43,7 @@ class PlacesHelper extends AppHelper {
 		$placeReference = "Localization.place_reference";
 		$classPlaceID = 'placeID';
 		$classPlaceReference = 'placeReference';
-		$establishmentAutocomplete = 'Localization.establishment';
+		$establishmentAutocomplete = 'establishment_autocomplete';
 		$establishmentID = 'Localization.establishment_id';
 		$establishmentReference = 'Localization.establishment_reference';
 		$classEstablishmentID = 'establishmentID';
