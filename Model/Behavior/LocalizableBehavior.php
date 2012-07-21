@@ -37,10 +37,9 @@ class LocalizableBehavior extends ModelBehavior {
 		));
 	}
 
-	/*public function beforeSave(Model $model) {
-		die(debug($model->data));
-		return false;
-	}*/
+	public function beforeSave(Model $model) {
+
+	}
 
 	public function beforeValidate(Model $model) {
 		//Many inputs
@@ -56,6 +55,16 @@ class LocalizableBehavior extends ModelBehavior {
 			$model->Localization->set(array(
 				'Localization' => $model->data['Localization']
 			));
+			if(isset($model->data['Localization']['establishment'])) {
+				$model->Localization->validate['establishment'] = array(
+					'notempty' => array(
+						'rule' => array('notempty'),
+						'message' => 'Establishment not valid, dont forget to select a place within list',
+						'allowEmpty' => false,
+						'required' => true,
+					),
+				);
+			}
 			return $model->Localization->validates();
 		}
 		else
@@ -67,7 +76,7 @@ class LocalizableBehavior extends ModelBehavior {
 			/* Check for saving place if not already exists in db or updating place id */
 			$model->Localization->Place->placeRoutine($model->data['Localization']['place_id'], $model->data['Localization']['place_reference']);
 			unset($model->data['Localization']['place_reference']);
-			
+
 			/* Save localized association */
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;

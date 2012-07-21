@@ -43,6 +43,7 @@ class PlacesHelper extends AppHelper {
 		$placeReference = "Localization.place_reference";
 		$classPlaceID = 'placeID';
 		$classPlaceReference = 'placeReference';
+		$establishmentAutocomplete = 'Localization.establishment';
 		
 		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
 		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference));
@@ -51,7 +52,7 @@ class PlacesHelper extends AppHelper {
 		echo $this->Form->input($inputID, array('id' => $inputID));
 		
 		if($type == 'establishment')
-			echo $this->Form->input('establishmentAutocomplete', array(
+			echo $this->Form->input($establishmentAutocomplete, array(
 				'class' => 'establishmentAutocomplete',
 				'div' => array(
 					'style' => 'display: none;',

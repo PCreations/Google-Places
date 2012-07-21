@@ -36,7 +36,7 @@ class PlaceTypesPlace extends GooglePlacesAppModel {
 		)
 	);
 
-	public function savePlaceAndTypes($place) {
+	public function savePlaceAndTypes($place, $place_id = null) {
 		$listType = $this->PlaceType->find('list');
 		$list = (count($listType) >= count($place->types)) ? array_diff($listType, $place->types) : array_diff($place->types, $listType);
 		debug($list);
@@ -54,6 +54,7 @@ class PlaceTypesPlace extends GooglePlacesAppModel {
 					'latitude' => $place->geometry->location->lat,
 					'longitude' => $place->geometry->location->lng,
 					'rating' => (property_exists($place, 'rating')) ? $place->rating : null,
+					'place_id' => $place_id
 				),
 		))) {
 			if(!empty($list)) {
