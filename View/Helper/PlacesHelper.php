@@ -7,8 +7,13 @@ class PlacesHelper extends AppHelper {
 	public $autocompleteInputs = array();
 
 	protected $_settings = array(
-		'key' => null
+		'key' => null,
 	);
+
+	const CITIES_SEARCH = '(cities)';
+	const ESTABLISHMENT_SEARCH = 'establishment';
+	const ADDRESS_SEARCH = 'geocode';
+	const REGIONS_SEARCH = '(regions)';
 
 	const PLACES_API_URL = "http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false";
 	
@@ -32,6 +37,7 @@ class PlacesHelper extends AppHelper {
 
 	public function __construct(View $view, $settings = array()) {
 		parent::__construct($view, $settings);
+		$this->_settings = Set::merge($this->_settings, $settings);
 		$this->view = $view;
 		$this->_cityAutocompleteCallback = $this->url($this->_cityAutocompleteCallback);
 		$this->_establishmentAutocompleteCallback = $this->url($this->_establishmentAutocompleteCallback);
@@ -39,10 +45,7 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function autocomplete($countries, $options = array('type' => 'city'), $iso2 = "AD") {
-		if(!isset($options['type']))
-			return false;
-		$type = $options['type'];
+	public function autocomplete($countries, $type = self::CITIES_SEARCH, $iso2 = "AD", $autocompleteInputOptions = array()) {
 		$inputID = $type . '_autocomplete';
 		$countriesInput = 'countries_autocomplete';
 		$countryID = 'country_id_autocomplete';
@@ -56,10 +59,12 @@ class PlacesHelper extends AppHelper {
 		$classEstablishmentID = 'establishmentID';
 		$classEstablishmentReference = 'establishmentReference';
 		
-		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
+		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
+		$this->_setAutocomplete($type, $countriesInput, $autocompleteInputOptions);
+		/*echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
 		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference));
 		echo $this->Form->hidden($countryID, array('id' => $countryID, 'value' => $iso2));
-		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
+		
 		echo $this->Form->input($inputID, array('id' => $inputID));
 		
 		if($type == 'establishment') {
@@ -104,7 +109,7 @@ class PlacesHelper extends AppHelper {
 		<?php
 		$this->Html->scriptEnd();
 		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "placeReference", "classPlaceID", "classPlaceReference");
-		/*$this->_autocompleteJavascript();
+		$this->_autocompleteJavascript();
 
 		if($type == 'establishment')
 			$this->establishmentAutocomplete(compact("countriesInput", "countryID", "establishmentID", "establishmentReference", "classEstablishmentID", "classEstablishmentReference"));
@@ -114,6 +119,40 @@ class PlacesHelper extends AppHelper {
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
 		}*/
+	}
+
+	private function _setAutocomplete($type, $countriesInput, $autocompleteInputOptions) {
+		$inputTemplate = ':type_autocomplete';
+		$autocompleteInput = '';
+		switch($type) {
+			case self::CITIES_SEARCH:
+				$autocompleteInput = String::insert($inputTemplate, array('type' => 'cities'));
+				break;
+			case self::REGIONS_SEARCH:
+				$autocompleteInput = String::insert($inputTemplate, array('type' => 'regions'));
+				break;
+			case self::ESTABLISHMENT_SEARCH:
+			case self::ADDRESS_SEARCH:
+				$autocompleteInput = String::insert($inputTemplate, array('type' => $type));
+				break;
+
+		}
+		$autocompleteInputOptions = Set::merge($autocompleteInputOptions, array('id' => $autocompleteInput));
+		echo $this->Form->input($autocompleteInput, $autocompleteInputOptions);
+		$this->Html->scriptStart(array('inline' => false));
+		?>
+			var gpInput = new GooglePlacesAutocompleteInput(
+				'<?php echo $autocompleteInput;?>', {
+					types: ['<?php echo $type;?>'],
+					componentRestrictions: {country: 'fr'} //TODO changer pour la locale
+				},
+				'<?php echo $countriesInput;?>',
+				function() {
+					console.log(this.place);
+				}
+			);
+		<?php
+		$this->Html->scriptEnd();
 	}
 
 	public function establishmentAutocomplete($inputs) {
