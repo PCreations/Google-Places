@@ -1,8 +1,9 @@
-function GooglePlacesAutocompleteInput(inputField, autoCompleteOptions, placeChangedCallback) {
+function GooglePlacesAutocompleteInput(inputField, autoCompleteOptions, countryField, placeChangedCallback) {
 	this.inputField = document.getElementById(inputField),
 	this.autoCompleteOptions = autoCompleteOptions;
 	this.autocomplete = new google.maps.places.Autocomplete(this.inputField, this.autoCompleteOptions);
 	this.place = null;
+	this.countryField = countryField;
 	this.placeChangedCallback = placeChangedCallback;
 
 	this.addPlaceChangedListener = function(_this) {
@@ -17,5 +18,13 @@ function GooglePlacesAutocompleteInput(inputField, autoCompleteOptions, placeCha
 		});
 	};
 
+	this.addAutomaticRestrictions = function(_this) {
+		$('#' + _this.countryField).change(function() {
+			var countryISO = $('#' + _this.countryField + ' option:selected').val();
+			_this.autocomplete.setComponentRestrictions({country: ''+countryISO+''});
+		});
+	};
+
 	this.addPlaceChangedListener(this);
+	this.addAutomaticRestrictions(this);
 }

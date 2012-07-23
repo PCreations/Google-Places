@@ -93,23 +93,14 @@ class PlacesHelper extends AppHelper {
 					componentRestrictions: {
 						country: 'fr'
 					}
+				},
+				'countries_autocomplete',
+				function() {
+					console.log(this.place);
 				}
 			);
-
-			gpInput.placeChangedCallback = function() {
-				console.log(this.place);
-			};
 			
 			console.log(gpInput.placeChangedCallback);
-
-			var gpInput2 = new GooglePlacesAutocompleteInput(
-				'autoTest', {
-					types: ['geocode'],
-					componentRestrictions: {
-						country: 'fr'
-					}
-				}
-			);
 		<?php
 		$this->Html->scriptEnd();
 		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "placeReference", "classPlaceID", "classPlaceReference");
