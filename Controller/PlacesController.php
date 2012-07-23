@@ -29,4 +29,15 @@ class PlacesController extends GooglePlacesAppController {
 		$predictions = $this->Place->getEstablishmentPredictionsByCity($term, $iso, $cityName, $lat, $lng);
 		$this->set(compact("predictions"));
 	}
+
+	public function handleAddPlaceAutocomplete() {
+		
+		if(!$this->RequestHandler->isAjax()) {
+			throw new MethodNotAllowedException();
+		}
+		
+		extract($_GET);
+		$predictions = $this->Place->getGeocodePredictionsByCity($term, $iso, $cityName, $lat, $lng);
+		$this->set(compact("predictions"));
+	}
 }
