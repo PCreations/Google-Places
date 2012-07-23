@@ -37,6 +37,19 @@ class LocalizableBehavior extends ModelBehavior {
 		));
 	}
 
+	public function getCountryFromLocale(Model $model) {
+		$locale = Configure::read('Config.language');
+		return $model->Localization->Place->Country->find('first', array(
+			'contain' => array(),
+			'fields' => array(
+				'Country.iso'
+			),
+			'conditions' => array(
+				'Country.languages LIKE' => '%' . $locale . '%'
+			)
+		));
+	}
+
 	public function beforeSave(Model $model) {
 		/*die(debug($model->data));
 		return false;*/
@@ -74,17 +87,18 @@ class LocalizableBehavior extends ModelBehavior {
 
 	public function afterSave(Model $model, $created) {
 		if($created || !isset($model->data['Localization']['foreign_key'])) {
-			/* Check for saving place if not already exists in db or updating place id */
-			$model->Localization->Place->placeRoutine($model->data['Localization']['place_id'], $model->data['Localization']['place_reference']);
+			/* Check for saving place if not already exists in db or for place id update*/
+			$model->Localization->Place->placeRoutine($model->data['Localization']['place_id'], $model->data['Localization']['place_reference'], $model->data['Localization']['country_id']);
 			
 			if(isset($model->data['Localization']['establishment_id'])) {
-				$model->Localization->Place->establishmentRoutine($model->data['Localization']['establishment_id'], $model->data['Localization']['establishment_reference'], $model->data['Localization']['place_id']);
+				$model->Localization->Place->establishmentRoutine($model->data['Localization']['establishment_id'], $model->data['Localization']['establishment_reference'], $model->data['Localization']['place_id'], $model->data['Localization']['country_id']);
 				$model->data['Localization']['place_id'] = $model->data['Localization']['establishment_id'];
 				unset($model->data['Localization']['establishment_id']);
 				unset($model->data['Localization']['establishment_reference']);
 			}
 
 			unset($model->data['Localization']['place_reference']);
+			unset($model->data['Localization']['country_id']);
 
 			/* Save localized association */
 			$model->data['Localization']['foreign_key'] = $model->id;

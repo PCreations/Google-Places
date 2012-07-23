@@ -37,6 +37,7 @@ class PlaceHandlerComponent extends Component {
 			$this->controller->{$modelClass}->Behaviors->load('GooglePlaces.Localizable');
 		}
 		$this->controller->set('countries', $this->controller->{$modelClass}->getCountriesList());
+		$this->controller->set('defaultCountry', $this->controller->{$modelClass}->getCountryFromLocale());
 	}
 
 }

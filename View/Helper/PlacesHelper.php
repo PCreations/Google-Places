@@ -5,6 +5,7 @@ class PlacesHelper extends AppHelper {
 	public $helpers = array('Html', 'Js', 'Form');
 	public $view;
 	public $autocompleteInputs = array();
+	public $defaultCountry;
 
 	protected $_settings = array(
 		'key' => null,
@@ -46,13 +47,11 @@ class PlacesHelper extends AppHelper {
 	}
 
 	public function autocomplete($countries, $type = self::CITIES_SEARCH, $iso2 = "AD", $autocompleteInputOptions = array()) {
+		$this->defaultCountry = $iso2;
 		$inputID = $type . '_autocomplete';
 		$countriesInput = 'countries_autocomplete';
 		$countryID = 'country_id_autocomplete';
-		$placeID = "Localization.place_id";
-		$placeReference = "Localization.place_reference";
-		$classPlaceID = 'placeID';
-		$classPlaceReference = 'placeReference';
+		
 		$establishmentAutocomplete = 'establishment_autocomplete';
 		$establishmentID = 'Localization.establishment_id';
 		$establishmentReference = 'Localization.establishment_reference';
@@ -121,9 +120,22 @@ class PlacesHelper extends AppHelper {
 		}*/
 	}
 
+	/*
+	* Basic function to find place just by country restictions.
+	*/
 	private function _setAutocomplete($type, $countriesInput, $autocompleteInputOptions) {
+		$placeID = "Localization.place_id";
+		$countryID = "Localization.country_id";
+		$classCountryID = "countryID";
+		$placeReference = "Localization.place_reference";
+		$classPlaceID = 'placeID';
+		$classPlaceReference = 'placeReference';
 		$inputTemplate = ':type_autocomplete';
 		$autocompleteInput = '';
+		echo $this->Form->hidden($countryID, array('id' => $countryID, 'class' => $classCountryID, 'value' => $this->defaultCountry));
+		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
+		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference));
+
 		switch($type) {
 			case self::CITIES_SEARCH:
 				$autocompleteInput = String::insert($inputTemplate, array('type' => 'cities'));
@@ -138,17 +150,22 @@ class PlacesHelper extends AppHelper {
 
 		}
 		$autocompleteInputOptions = Set::merge($autocompleteInputOptions, array('id' => $autocompleteInput));
+
 		echo $this->Form->input($autocompleteInput, $autocompleteInputOptions);
 		$this->Html->scriptStart(array('inline' => false));
 		?>
 			var gpInput = new GooglePlacesAutocompleteInput(
 				'<?php echo $autocompleteInput;?>', {
 					types: ['<?php echo $type;?>'],
-					componentRestrictions: {country: 'fr'} //TODO changer pour la locale
+					componentRestrictions: {country: '<?php echo strtolower($this->defaultCountry);?>'} //TODO changer pour la locale
 				},
 				'<?php echo $countriesInput;?>',
+				'<?php echo $classCountryID;?>',
 				function() {
-					console.log(this.place);
+					var place = this.place;
+					$('.<?php echo $classPlaceID;?>').val(place.id);
+					$('.<?php echo $classPlaceReference;?>').val(place.reference);
+					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				}
 			);
 		<?php

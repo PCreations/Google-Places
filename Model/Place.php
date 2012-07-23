@@ -74,19 +74,19 @@ class Place extends GooglePlacesAppModel {
 		)
 	);
 
-	public function placeRoutine($placeID, $placeReference) {
+	public function placeRoutine($placeID, $placeReference, $countryID) {
 		if(!$this->routine($placeID, $placeReference)) {
 			/* Add the place */
 			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
-			$PlaceTypesPlace->savePlaceAndTypes($this->gpAPI()->detail($placeReference));
+			$PlaceTypesPlace->savePlaceAndTypes($this->gpAPI()->detail($placeReference), $countryID);
 		}
 	}
 
-	public function establishmentRoutine($establishmentID, $establishmentReference, $placeID) {
+	public function establishmentRoutine($establishmentID, $establishmentReference, $placeID, $countryID) {
 		if(!$this->routine($establishmentID, $establishmentReference)) {
 			/* Add the establishment */
 			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
-			$PlaceTypesPlace->saveEstablishment($this->gpAPI()->detail($establishmentReference), $placeID);
+			$PlaceTypesPlace->saveEstablishment($this->gpAPI()->detail($establishmentReference), $countryID, $placeID);
 		}
 	}
 
