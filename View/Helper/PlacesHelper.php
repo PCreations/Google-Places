@@ -84,8 +84,32 @@ class PlacesHelper extends AppHelper {
 			));
 		}
 
+		echo $this->Form->input('autoTest', array('id' => 'autoTest'));
+		$this->Html->scriptStart(array('inline' => false));
+		?>
+			var gpInput = new GooglePlacesAutocompleteInput(
+				'city_autocomplete', {
+					types: ['(cities)'],
+					componentRestrictions: {
+						country: 'fr'
+					}
+				}
+			);
+
+			var gpInput2 = new GooglePlacesAutocompleteInput(
+				'autoTest', {
+					types: ['geocode'],
+					componentRestrictions: {
+						country: 'fr'
+					}
+				}
+			);
+
+			console.log(gpInput);
+		<?php
+		$this->Html->scriptEnd();
 		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "placeReference", "classPlaceID", "classPlaceReference");
-		$this->_autocompleteJavascript();
+		/*$this->_autocompleteJavascript();
 
 		if($type == 'establishment')
 			$this->establishmentAutocomplete(compact("countriesInput", "countryID", "establishmentID", "establishmentReference", "classEstablishmentID", "classEstablishmentReference"));
@@ -94,7 +118,7 @@ class PlacesHelper extends AppHelper {
 		}
 		if($this->Form->isFieldError($placeID)) {
 			echo $this->Form->error($placeID);
-		}
+		}*/
 	}
 
 	public function establishmentAutocomplete($inputs) {
@@ -193,11 +217,7 @@ class PlacesHelper extends AppHelper {
 	private function _autocompleteJavascript() {
 		$this->Html->scriptStart(array('inline' => false));
 		?>
-			function addLatLng(place) {
-				place.geometry.location.lat = place.geometry.location.lat();
-				place.geometry.location.lng = place.geometry.location.lng();
-				return place;
-			}
+			
 
 			var inputs = <?php echo $this->Js->value($this->autocompleteInputs);?>;
 			console.log(inputs);
