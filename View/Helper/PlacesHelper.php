@@ -46,17 +46,83 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function autocomplete($countries, $type = self::CITIES_SEARCH, $iso2 = "AD", $autocompleteInputOptions = array()) {
+	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array()) {
 		$this->defaultCountry = $iso2;
-		$inputID = $type . '_autocomplete';
 		$countriesInput = 'countries_autocomplete';
-		$countryID = 'country_id_autocomplete';
-		
 		$establishmentAutocomplete = 'establishment_autocomplete';
 		$establishmentID = 'Localization.establishment_id';
 		$establishmentReference = 'Localization.establishment_reference';
 		$classEstablishmentID = 'establishmentID';
 		$classEstablishmentReference = 'establishmentReference';
+
+		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
+		$this->_setAutocomplete(self::CITIES_SEARCH, $countriesInput, array('placeholder' => __('Establishment\'s city')));
+
+		echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $classEstablishmentID));
+		echo $this->Form->hidden($establishmentReference, array('id' => $establishmentReference, 'class' => $classEstablishmentReference));
+		echo $this->Form->input($establishmentAutocomplete, array(
+			'class' => 'establishmentAutocomplete',
+			'div' => array(
+				'style' => 'display: none;',
+				'class' => 'divEstablishment'
+			)
+		));
+		$this->Html->scriptStart(array('inline' => false));
+		?>
+			gpInput.appendToPlaceChangedCallback(gpInput, function(){
+				$('.divEstablishment').show();
+				place = gpInput.autocomplete.getPlace();
+				console.log("in establishment");
+				console.log(place);
+
+				var input = $('.establishmentAutocomplete');
+				var cache = {},lastXhr;
+				input.autocomplete({
+					minLength:2,
+					source: function( request, response ) {
+						request.iso = $('.countryID').val();
+						console.log("ISO = "+request.iso);
+						request.cityName = place.name;
+						request.lat = place.geometry.location.lat;
+						request.lng = place.geometry.location.lng;
+						var term = request.term;
+						if ( term in cache ) {
+							response( cache[ term ] );
+							return;
+						}
+
+						lastXhr = $.getJSON( "<?php echo $this->_establishmentAutocompleteCallback; ?>", request, function( data, status, xhr ) {
+							cache[ term ] = data;
+							if ( xhr === lastXhr ) {
+								response( data );
+							}
+						});
+					},
+					select : function(event, ui){
+						var establishmentInfos = ui.item.id.split('|'); //[0] => id, [1] => reference
+						console.log('SELECT');
+						console.log(ui);
+						console.log(establishmentInfos);
+						$('.<?php echo $classEstablishmentID;?>').val(establishmentInfos[0]);
+						$('.<?php echo $classEstablishmentReference;?>').val(establishmentInfos[1]);
+					}
+				});
+			});
+		<?php
+		$this->Html->scriptEnd();
+		if($this->Form->isFieldError($establishmentID)) {
+			$this->Html->scriptStart(array('inline' => false));
+			?>
+				$('.divEstablishment').show();
+			<?php
+			$this->Html->scriptEnd();
+			echo $this->Form->error($establishmentID);
+		}
+	}
+
+	public function autocomplete($countries, $type = self::CITIES_SEARCH, $iso2 = "AD", $autocompleteInputOptions = array()) {
+		$this->defaultCountry = $iso2;
+		$countriesInput = 'countries_autocomplete';
 		
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		$this->_setAutocomplete($type, $countriesInput, $autocompleteInputOptions);
@@ -157,19 +223,26 @@ class PlacesHelper extends AppHelper {
 			var gpInput = new GooglePlacesAutocompleteInput(
 				'<?php echo $autocompleteInput;?>', {
 					types: ['<?php echo $type;?>'],
-					componentRestrictions: {country: '<?php echo strtolower($this->defaultCountry);?>'} //TODO changer pour la locale
+					componentRestrictions: {country: '<?php echo strtolower($this->defaultCountry);?>'}
 				},
 				'<?php echo $countriesInput;?>',
 				'<?php echo $classCountryID;?>',
 				function() {
 					var place = this.place;
+					console.log(place);
+					console.log('ICI');
 					$('.<?php echo $classPlaceID;?>').val(place.id);
+					console.log($('.<?php echo $classPlaceID;?>'));
 					$('.<?php echo $classPlaceReference;?>').val(place.reference);
 					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				}
 			);
 		<?php
 		$this->Html->scriptEnd();
+		if($this->Form->isFieldError($placeID)) {
+			echo $this->Form->error($placeID);
+		}
+
 	}
 
 	public function establishmentAutocomplete($inputs) {

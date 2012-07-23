@@ -19,6 +19,14 @@ function GooglePlacesAutocompleteInput(inputField, autoCompleteOptions, countryF
 		});
 	};
 
+	this.appendToPlaceChangedCallback = function(_this, callback) {
+		var oldCallback = _this.placeChangedCallback;
+		_this.placeChangedCallback = function() {
+			oldCallback();
+			callback();
+		}
+	}
+
 	this.addAutomaticRestrictions = function(_this) {
 		$('#' + _this.countryField).change(function() {
 			var countryISO = $('#' + _this.countryField + ' option:selected').val();

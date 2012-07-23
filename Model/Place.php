@@ -86,7 +86,7 @@ class Place extends GooglePlacesAppModel {
 		if(!$this->routine($establishmentID, $establishmentReference)) {
 			/* Add the establishment */
 			$PlaceTypesPlace = ClassRegistry::init('GooglePlaces.PlaceTypesPlace');
-			$PlaceTypesPlace->saveEstablishment($this->gpAPI()->detail($establishmentReference), $countryID, $placeID);
+			$PlaceTypesPlace->saveEstablishment($this->gpAPI()->detail($establishmentReference), $placeID, $countryID);
 		}
 	}
 

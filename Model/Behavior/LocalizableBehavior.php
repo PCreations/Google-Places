@@ -69,8 +69,8 @@ class LocalizableBehavior extends ModelBehavior {
 			$model->Localization->set(array(
 				'Localization' => $model->data['Localization']
 			));
-			if(isset($model->data['Localization']['establishment'])) {
-				$model->Localization->validate['establishment'] = array(
+			if(isset($model->data['Localization']['establishment_id'])) {
+				$model->Localization->validate['establishment_id'] = array(
 					'notempty' => array(
 						'rule' => array('notempty'),
 						'message' => 'Establishment not valid, dont forget to select a place within list',
@@ -88,10 +88,20 @@ class LocalizableBehavior extends ModelBehavior {
 	public function afterSave(Model $model, $created) {
 		if($created || !isset($model->data['Localization']['foreign_key'])) {
 			/* Check for saving place if not already exists in db or for place id update*/
-			$model->Localization->Place->placeRoutine($model->data['Localization']['place_id'], $model->data['Localization']['place_reference'], $model->data['Localization']['country_id']);
+			debug($model->data['Localization']);
+			$model->Localization->Place->placeRoutine(
+				$model->data['Localization']['place_id'], 
+				$model->data['Localization']['place_reference'], 
+				$model->data['Localization']['country_id']
+			);
 			
 			if(isset($model->data['Localization']['establishment_id'])) {
-				$model->Localization->Place->establishmentRoutine($model->data['Localization']['establishment_id'], $model->data['Localization']['establishment_reference'], $model->data['Localization']['place_id'], $model->data['Localization']['country_id']);
+				$model->Localization->Place->establishmentRoutine(
+					$model->data['Localization']['establishment_id'], 
+					$model->data['Localization']['establishment_reference'], 
+					$model->data['Localization']['place_id'], 
+					$model->data['Localization']['country_id']
+				);
 				$model->data['Localization']['place_id'] = $model->data['Localization']['establishment_id'];
 				unset($model->data['Localization']['establishment_id']);
 				unset($model->data['Localization']['establishment_reference']);
@@ -104,9 +114,16 @@ class LocalizableBehavior extends ModelBehavior {
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;
 			$model->Localization->create();
-			$model->Localization->save(array(
-				'Localization' => $model->data['Localization']
-			));
+			debug($model->data['Localization']);
+			if(!$model->Localization->save(
+				array(
+					'Localization' => $model->data['Localization']
+				),
+				false
+			)) {
+				debug($model->Localization->validationErrors);
+				die("Unable to save Localization association");
+			}
 		}
 		else {
 			
