@@ -96,6 +96,12 @@ class PlacesHelper extends AppHelper {
 				}
 			);
 
+			gpInput.placeChangedCallback = function() {
+				console.log(this.place);
+			};
+			
+			console.log(gpInput.placeChangedCallback);
+
 			var gpInput2 = new GooglePlacesAutocompleteInput(
 				'autoTest', {
 					types: ['geocode'],
@@ -104,8 +110,6 @@ class PlacesHelper extends AppHelper {
 					}
 				}
 			);
-
-			console.log(gpInput);
 		<?php
 		$this->Html->scriptEnd();
 		$this->autocompleteInputs[] = compact("inputID", "countriesInput", "iso2", "countryID", "placeID", "placeReference", "classPlaceID", "classPlaceReference");
