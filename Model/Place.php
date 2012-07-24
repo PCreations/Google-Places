@@ -138,7 +138,7 @@ class Place extends GooglePlacesAppModel {
 				'label' => $prediction->description
 			);	
 		}
-		return empty($predictions) ? array(array('id' => '-1', 'label' => __('No results for ' . $input))) : $predictions;
+		return empty($predictions) ? array(array('id' => '-1', 'label' => __('Add new place : ' . $input))) : $predictions;
 	}
 
 	public function getGeocodePredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {

@@ -7,6 +7,7 @@ App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
 class PlacesController extends GooglePlacesAppController {
 
 	public $components = array('RequestHandler');
+	public $helpers = array('GooglePlaces.Places');
 
 	public function handleCityAutocomplete() {
 		$this->autoRender = false;
@@ -30,14 +31,13 @@ class PlacesController extends GooglePlacesAppController {
 		$this->set(compact("predictions"));
 	}
 
-	public function handleAddPlaceAutocomplete() {
+	public function handleAddPlace() {
 		
 		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
 		
-		extract($_GET);
-		$predictions = $this->Place->getGeocodePredictionsByCity($term, $iso, $cityName, $lat, $lng);
-		$this->set(compact("predictions"));
+		extract($_POST);
+		$this->set(compact("countriesInput", "country", "cityName"));
 	}
 }
