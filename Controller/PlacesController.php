@@ -55,4 +55,16 @@ class PlacesController extends GooglePlacesAppController {
 		$types = $this->Place->gpAPI()->addSupportedPlaceTypes;
 		$this->set(compact("countriesInput", "country", "cityName", "types"));
 	}
+
+	public function geocodeDetails() {
+
+		if(!$this->RequestHandler->isAjax()) {
+			throw new MethodNotAllowedException();
+		}
+
+		extract($_GET);
+		$geocodeDetails = $this->Place->gpAPI()->detail($geocodeReference);
+		$this->set(compact("geocodeDetails"));
+		$this->set('_serialize', array('geocodeDetails'));
+	}
 }

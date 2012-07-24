@@ -194,10 +194,7 @@ class PlacesHelper extends AppHelper {
 				'<?php echo $classCountryID;?>',
 				function() {
 					var place = this.place;
-					console.log(place);
-					console.log('ICI');
 					$('.<?php echo $classPlaceID;?>').val(place.id);
-					console.log($('.<?php echo $classPlaceID;?>'));
 					$('.<?php echo $classPlaceReference;?>').val(place.reference);
 					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				}
@@ -210,7 +207,10 @@ class PlacesHelper extends AppHelper {
 
 	public function addPlace($countriesInput, $country, $cityName, $types) {
 		echo $this->Form->input('Establishment.geocode', array('id' => 'geocode_autocomplete', 'placeholder' => 'Etablishment\'s address'));
-		echo $this->Form->input('Establishment.types', array('id' => 'establishment_types', 'multiple' => true, 'options' => $types));
+		echo $this->Form->input('Establishment.types', array('id' => 'establishment_types', 'options' => $types));
+		echo $this->Form->hidden('Localization.action', array('value' => 'place_report'));
+		echo $this->Form->hidden('Geocode.latitude', array('id' => 'geocode_latitude'));
+		echo $this->Form->hidden('Geocode.longitude', array('id' => 'geocode_longitude'));
 		$this->Html->scriptStart(array('inline' => true));
 		?>
 			var input = $('#geocode_autocomplete');
@@ -240,7 +240,15 @@ class PlacesHelper extends AppHelper {
 					});
 				},
 				select : function(event, ui){
+					var geocodeInfos = ui.item.id.split('|'); //[0] => id, [1] => reference
+					console.log('SELECT');
 					console.log(ui);
+					console.log(geocodeInfos);
+					$.getJSON('<?php echo $this->url(array('controller' => 'places', 'action' => 'geocodeDetails', 'plugin' => 'google_places'));?>', {geocodeReference: geocodeInfos[1]}, function(json, status, xhr) {
+						$('#geocode_latitude').val(json.geocodeDetails.geometry.location.lat);
+						$('#geocode_longitude').val(json.geocodeDetails.geometry.location.lng);
+					});
+					
 				}
 			});
 		<?php

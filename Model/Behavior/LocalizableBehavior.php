@@ -51,12 +51,16 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function beforeSave(Model $model) {
-		/*die(debug($model->data));
-		return false;*/
+		return false;
 	}
 
 	public function beforeValidate(Model $model) {
 		//Many inputs
+		die(debug($model->data));
+		/* Place report request */
+		if(isset($model->data['Localization']['action']) && $model->data['Localization']['action'] == 'place_report') {
+			$newPlace = $model->Localization->Place->gpAPI()->add();
+		}
 		/*debug($model->data['Localization']);
 		foreach($model->data['Localization'] as $alias => $place) {
 			debug($place);
@@ -82,7 +86,7 @@ class LocalizableBehavior extends ModelBehavior {
 			return $model->Localization->validates();
 		}
 		else
-			return true;
+			return false;
 	}
 
 	public function afterSave(Model $model, $created) {
