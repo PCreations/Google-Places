@@ -21,13 +21,27 @@ class PlacesController extends GooglePlacesAppController {
 	}
 
 	public function handleEstablishmentAutocomplete() {
-		
+		$this->view = 'predictions_json';
+
 		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
 		
 		extract($_GET);
-		$predictions = $this->Place->getEstablishmentPredictionsByCity($term, $iso, $cityName, $lat, $lng);
+		$predictions = $this->Place->getPlacePredictionsByCity($term, $iso, $cityName, 'establishment', __('Add new place : :input'), $lat, $lng);
+		$this->set(compact("predictions"));
+
+	}
+
+	public function handleGeocodeAutocomplete() {
+		$this->view = 'predictions_json';
+
+		if(!$this->RequestHandler->isAjax()) {
+			throw new MethodNotAllowedException();
+		}
+		
+		extract($_GET);
+		$predictions = $this->Place->getPlacePredictionsByCity($term, $iso, $cityName, 'geocode', __('No results for : :input'));
 		$this->set(compact("predictions"));
 	}
 
@@ -38,6 +52,7 @@ class PlacesController extends GooglePlacesAppController {
 		}
 		
 		extract($_POST);
-		$this->set(compact("countriesInput", "country", "cityName"));
+		$types = $this->Place->gpAPI()->addSupportedPlaceTypes;
+		$this->set(compact("countriesInput", "country", "cityName", "types"));
 	}
 }

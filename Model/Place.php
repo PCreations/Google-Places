@@ -121,13 +121,17 @@ class Place extends GooglePlacesAppModel {
 		$this->save();
 	}
 
-	public function getEstablishmentPredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
+	public function getPlacePredictionsByCity($input, $iso2, $cityName, $type, $templateNoResult = 'No result for :input', $lat = null, $lng = null, $radius = 500000, $force = false) {
 		$optionnalParameters = array(
 			'components' => 'country:' . strtolower($iso2),
-			'types' => 'establishment',
+			'types' => $type,
 			'location' => "$lat,$lng",
 			'radius' => $radius
 		);
+
+		if($lat == null || $lng == null) {
+			unset($optionnalParameters['location']);
+		}
 
 		/* CityName is prepend to input in order to restrict results */
 		$predictions = $this->gpAPI()->autocomplete($cityName . ' ' .$input, $sensor = false, $optionnalParameters);
@@ -138,7 +142,8 @@ class Place extends GooglePlacesAppModel {
 				'label' => $prediction->description
 			);	
 		}
-		return empty($predictions) ? array(array('id' => '-1', 'label' => __('Add new place : ' . $input))) : $predictions;
+		$templateNoResult = String::insert($templateNoResult, array('input' => $input));
+		return empty($predictions) ? array(array('id' => '-1', 'label' => $templateNoResult)) : $predictions;
 	}
 
 	public function getGeocodePredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
