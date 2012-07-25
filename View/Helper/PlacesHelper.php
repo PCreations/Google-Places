@@ -1,4 +1,7 @@
 <?php
+/**
+ * @todo : Nettoyer le Helper en supprimant la redondance de code en passant par une autocompletion full cURL et pas javascript. Prendre en charge correctement la validation (les messages d'erreurs ne sont pas affichés lors de l'édition) et gérer l'édition d'un lieu générique (juste geocode/establishment/city...)
+*/
 
 class PlacesHelper extends AppHelper {
 	
