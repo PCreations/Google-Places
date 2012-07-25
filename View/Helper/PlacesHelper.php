@@ -255,44 +255,17 @@ class PlacesHelper extends AppHelper {
 		echo $this->Html->scriptEnd();
 	}
 
-	private function _autocompleteJavascript() {
-		$this->Html->scriptStart(array('inline' => false));
-		?>
-			
+	public function oneLineLocalization($localizationData, $template = ':place, :city, :country') {
+		$placeName = $localizationData['Place']['Place']['name'];
+		$placeCity = !empty($localizationData['Place']['PlaceIn']) ? $localizationData['Place']['PlaceIn']['name'] : false;
+		$country = $localizationData['Place']['Country']['name'];
 
-			var inputs = <?php echo $this->Js->value($this->autocompleteInputs);?>;
-			console.log(inputs);
-
-			$.each(inputs, function(key, input) {
-				console.log("input");
-				console.log(input);
-				var options = {
-					types: ['(cities)'],
-					componentRestrictions: {country: input['iso2']}
-				};
-
-				var inputField = document.getElementById(input['inputID']);
-
-				autocomplete = new google.maps.places.Autocomplete(inputField, options);
-				google.maps.event.addListener(autocomplete, 'place_changed', function() {
-					var place = autocomplete.getPlace();
-					console.log(place);
-					place = addLatLng(place);
-					$('.' + input['classPlaceID']).val(place.id);
-					$('.' + input['classPlaceReference']).val(place.reference);
-					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
-				});
-
-				$('#' + input['countriesInput']).change(function() {
-					var countryISO = $('#' + input['countriesInput'] + ' option:selected').val();
-					console.log('CountryISO = '+countryISO);
-					$('#' + input['countryID']).val(countryISO);
-					autocomplete.setComponentRestrictions({country: ''+countryISO+''});
-				});
-			});
-			
-		<?php
-		$this->Html->scriptEnd();
+		$template = ($placeCity === false) ? str_replace(':city ', '', $template) : $template;
+		return String::insert($template, array(
+			'place' => $placeName,
+			'city' => $placeCity,
+			'country' => $country
+		));
 	}
 
 }

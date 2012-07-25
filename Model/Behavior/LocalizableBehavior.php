@@ -118,7 +118,8 @@ class LocalizableBehavior extends ModelBehavior {
 			'contain' => array(
 				'Country' => array(
 					'fields' => array(
-						'Country.iso'
+						'Country.iso',
+						'Country.name'
 					)
 				),
 				'PlaceIn' => array(
