@@ -1,0 +1,31 @@
+* About to connect() to maps.googleapis.com port 443 (#0)
+*   Trying 74.125.132.95... * connected
+* Connected to maps.googleapis.com (74.125.132.95) port 443 (#0)
+* SSL connection using RC4-SHA
+* Server certificate:
+* 	 subject: C=US; ST=California; L=Mountain View; O=Google Inc; CN=*.googleapis.com
+* 	 start date: 2012-06-27 13:58:35 GMT
+* 	 expire date: 2013-06-07 19:43:27 GMT
+* 	 subjectAltName: maps.googleapis.com matched
+* 	 issuer: C=US; O=Google Inc; CN=Google Internet Authority
+* 	 SSL certificate verify result: unable to get local issuer certificate (20), continuing anyway.
+> GET /maps/api/place/autocomplete/json?input=Meaux+19+rue+cornillon&sensor=false&key=AIzaSyAir6DKOMRfmXyHgXGHgHSg_FovG7yuMYY&components=country:ad&types=geocode&radius=500000 HTTP/1.1
+Host: maps.googleapis.com
+Accept: */*
+Content-Type: application/json
+
+< HTTP/1.1 200 OK
+< Content-Type: application/json; charset=UTF-8
+< Date: Wed, 25 Jul 2012 07:09:17 GMT
+< Expires: Wed, 25 Jul 2012 07:14:17 GMT
+< Cache-Control: public, max-age=300
+< Vary: Accept-Language
+< Server: mafe
+< X-XSS-Protection: 1; mode=block
+< X-Frame-Options: SAMEORIGIN
+< Transfer-Encoding: chunked
+< 
+* Connection #0 to host maps.googleapis.com left intact
+* Closing connection #0
+t intact
+* Closing connection #0

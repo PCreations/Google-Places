@@ -9,15 +9,25 @@ class GooglePlacesRequest {
 	public $output = "json";
 	public $parameters = array();
 
-	public function send($url, $output, $parameters) {
+	public function send($url, $output, $parameters, $get, $urlSuffix) {
 		$this->output = $output;
-		$this->parameters = $parameters;
-		$this->url = $this->buildRequest($url);
-		$easyCurlRequest = new EasyCurlRequest($this->url, EasyCurlRequestType::GET);
+		if($get) {
+			$this->parameters = $parameters;
+		}
+		$this->url = $this->buildRequest($url) . $urlSuffix;
+		$easyCurlRequest = new EasyCurlRequest($this->url, $get ? EasyCurlRequestType::GET : EasyCurlRequestType::POST);
+		if(!$get) {
+			$this->buildPostParameters($easyCurlRequest, $parameters);
+		}
+		//debug($easyCurlRequest);
 		$easyCurlRequest->AddHeader(new EasyCurlHeader('Content-Type', 'application/' . $this->output));
 		$easyCurlRequest->SetAutoReferer();
+		/*var_dump($this->url);
+		var_dump($get);
+		var_dump($urlSuffix);*/
 		try {
 			$executionResult = $easyCurlRequest->Execute();
+			//debug($executionResult);
 			if($executionResult instanceof EasyCurlResponse) {
 				return new GooglePlacesResponse($this->url, $executionResult->ResposeBody, $this->output);
 			}
@@ -46,6 +56,12 @@ class GooglePlacesRequest {
 			$url .= "$name=$value&";
 		}
 		return rtrim($url, '&');
+	}
+
+	private function buildPostParameters(&$request, $parameters) {
+		foreach($parameters as $name => $value) {
+			$request->AddPostParameter(new EasyCurlPostParameter($name, $value));
+		}
 	}
 }
 

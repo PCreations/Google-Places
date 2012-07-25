@@ -56,11 +56,19 @@ class LocalizableBehavior extends ModelBehavior {
 
 	public function beforeValidate(Model $model) {
 		//Many inputs
-		die(debug($model->data));
+		
 		/* Place report request */
 		if(isset($model->data['Localization']['action']) && $model->data['Localization']['action'] == 'place_report') {
-			$newPlace = $model->Localization->Place->gpAPI()->add();
+			$newPlace = $model->Localization->Place->gpAPI()->add(
+				$model->data['Geocode']['latitude'], 
+				$model->data['Geocode']['longitude'], 
+				$model->data['Licence']['establishment_autocomplete'], 
+				$model->data['Establishment']['types']
+			);
 		}
+
+		debug($newPlace);
+		die(debug($model->data));
 		/*debug($model->data['Localization']);
 		foreach($model->data['Localization'] as $alias => $place) {
 			debug($place);

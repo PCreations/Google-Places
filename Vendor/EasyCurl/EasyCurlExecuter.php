@@ -113,6 +113,7 @@ class EasyCurlExecuter
             curl_multi_add_handle($this->multiThreadHandler, $current);
         }
         
+        debug($this->multiThreadHandler);
         do
         {
             while(($execrun = curl_multi_exec($this->multiThreadHandler, $running)) == CURLM_CALL_MULTI_PERFORM);

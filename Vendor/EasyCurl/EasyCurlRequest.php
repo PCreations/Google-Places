@@ -1,5 +1,17 @@
 <?php
+function dbg_curl_data($curl, $data=null) {
+  static $buffer = '';
 
+  if ( is_null($curl) ) {
+    $r = $buffer;
+    $buffer = '';
+    return $r;
+  }
+  else {
+    $buffer .= $data;
+    return strlen($data);
+  }
+}
 /**
  * @author Amir Ali Jiwani <amir.ali@pi-labs.net>
  * @copyright 2011
@@ -21,12 +33,12 @@ require_once('EasyCurlResponse.php');
  */
 class EasyCurlRequest
 {
-    private $curlInstance = null;
-    private $headers = array();
-    private $cookies = array();
-    private $requestType = '';
-    private $postParams = array();
-    private $url;
+    public $curlInstance = null;
+    public $headers = array();
+    public $cookies = array();
+    public $requestType = '';
+    public $postParams = array();
+    public $url;
     
     /**
      * EasyCurlRequest::GetCookieString()
@@ -68,7 +80,6 @@ class EasyCurlRequest
         }
         
         array_splice($this->postParams, 0);
-        
         return $finalArray;
     }
     
@@ -117,7 +128,8 @@ class EasyCurlRequest
         {
             if (count($this->postParams) > 0)
             {
-                curl_setopt($this->curlInstance, CURLOPT_POSTFIELDS, $this->GetPostParams());
+                var_dump(json_encode($this->GetPostParams()));
+                curl_setopt($this->curlInstance, CURLOPT_POSTFIELDS, json_encode($this->GetPostParams()));
             }
         }
     }
@@ -400,8 +412,11 @@ class EasyCurlRequest
     {
         if ($this->requestType == EasyCurlRequestType::POST)
         {
-            if ($parameter instanceof EasyCurlPostParameter)
+            if ($parameter instanceof EasyCurlPostParameter) {
                 $this->postParams[] = $parameter;
+                echo "add new post parameters";
+                var_dump($this->postParams);
+            }
             else
                 throw new EasyCurlPostParameterException("Expecting type EasyCurlPostParameter.");
         }
@@ -474,8 +489,9 @@ class EasyCurlRequest
     public function Execute()
     {
         $this->FinalizeRequest();
+        curl_setopt($this->curlInstance, CURLOPT_STDERR, fopen(APP . DS . 'Plugin' . DS . 'GooglePlaces' . DS . 'Vendor' . DS . 'EasyCurl' . DS . 'stderr.curl', 'r+'));
+        curl_setopt($this->curlInstance, CURLOPT_VERBOSE, 1);
         $result = curl_exec($this->curlInstance);
-        
         if ($result === false)
         {
             return new EasyCurlError($this->curlInstance);

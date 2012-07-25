@@ -53,6 +53,7 @@ class PlacesController extends GooglePlacesAppController {
 		
 		extract($_POST);
 		$types = $this->Place->gpAPI()->addSupportedPlaceTypes;
+		$types = array_combine(array_keys(array_flip($types)), $types);
 		$this->set(compact("countriesInput", "country", "cityName", "types"));
 	}
 
@@ -66,5 +67,10 @@ class PlacesController extends GooglePlacesAppController {
 		$geocodeDetails = $this->Place->gpAPI()->detail($geocodeReference);
 		$this->set(compact("geocodeDetails"));
 		$this->set('_serialize', array('geocodeDetails'));
+	}
+
+	public function test() {
+		$this->autoRender = false;
+		var_dump($_POST);
 	}
 }

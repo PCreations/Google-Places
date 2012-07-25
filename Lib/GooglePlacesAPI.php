@@ -112,6 +112,7 @@ class GooglePlacesAPI {
 
 	const PLACE_DETAIL_URL = "https://maps.googleapis.com/maps/api/place/details/";
 	const PLACE_AUTOCOMPLETE_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/";
+	const PLACE_ADD_URL = "https://maps.googleapis.com/maps/api/place/add/";
 
 /**
  * Constructor
@@ -120,6 +121,16 @@ class GooglePlacesAPI {
 	public function __construct($apiKey) {
 		$this->apiKey = $apiKey;
 		$this->GooglePlacesRequest = new GooglePlacesRequest();
+	}
+
+	public function add($latitude, $longitude, $name, $types, $optionnalParameters = array(), $accuracy = 10, $sensor = false, $output = "json") {
+		$location = array(
+			'lat' => (double)$latitude,
+			'lng' => (double)$longitude
+		);
+		$types = array($types);
+		$parameters = Set::merge(compact('location', 'accuracy', 'name', 'types'), $optionnalParameters);
+		$response = $this->sendRequest('http://localhost/lsbox/google_places/places/test', $parameters, '', false);
 	}
 
 	public function detail($reference, $sensor = false, $optionnalParameters = array(), $output = "json") {
@@ -137,8 +148,8 @@ class GooglePlacesAPI {
 		return isset($response->predictions) ? $response->predictions : null;
 	}
 
-	private function sendRequest($url, $parameters, $output) {
-		$response = $this->GooglePlacesRequest->send($url, $output, $parameters);
+	private function sendRequest($url, $parameters, $output, $get = true, $urlSuffix = '') {
+		$response = $this->GooglePlacesRequest->send($url, $output, $parameters, $get, $urlSuffix);
 		return $response->data;
 	}
 
