@@ -72,15 +72,6 @@ class LocalizableBehavior extends ModelBehavior {
 			unset($model->data['Geocode']);
 		}
 
-		
-		/*debug($model->data['Localization']);
-		foreach($model->data['Localization'] as $alias => $place) {
-			debug($place);
-			debug(empty($place['place_id']));
-			if(empty($place['place_id'])) {
-				$model->invalidate('city_autocomplete_' . $alias, 'Place id not valid');
-			}
-		}*/
 		if(isset($model->data['Localization'])) {
 			$model->Localization->set(array(
 				'Localization' => $model->data['Localization']
@@ -148,8 +139,9 @@ class LocalizableBehavior extends ModelBehavior {
 				'contain' => array()
 			));
 			$update = ($localization['Localization']['place_id'] != ($establishmentInCity ? $model->data['Localization']['establishment_id'] : $model->data['Localization']['place_id']));
+			debug($update);
 		}
-		if($created || !isset($model->data['Localization']['foreign_key']) || $update) {
+		if($created || $update) {
 			/* Check for saving place if not already exists in db or for place id update*/
 			debug($model->data['Localization']);
 			$model->Localization->Place->placeRoutine(
