@@ -25,6 +25,10 @@ class Place extends GooglePlacesAppModel {
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
+		),
+		'PlaceIn' => array(
+			'className' => 'GooglePlaces.Place',
+			'foreignKey' => 'place_id',
 		)
 	);
 

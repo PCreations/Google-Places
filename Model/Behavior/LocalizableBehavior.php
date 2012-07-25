@@ -13,6 +13,9 @@ class LocalizableBehavior extends ModelBehavior {
 							'Localization.model' => $model->alias
 						),
 						'dependent' => true,
+						'contain' => array(
+							'Place'
+						)
 					)
 				)
 			),
@@ -34,19 +37,6 @@ class LocalizableBehavior extends ModelBehavior {
 	public function getCountriesList(Model $model) {
 		return $model->Localization->Place->Country->find('list', array(
 			'order' => 'name'
-		));
-	}
-
-	public function getCountryFromLocale(Model $model) {
-		$locale = Configure::read('Config.language');
-		return $model->Localization->Place->Country->find('first', array(
-			'contain' => array(),
-			'fields' => array(
-				'Country.iso'
-			),
-			'conditions' => array(
-				'Country.languages LIKE' => '%' . $locale . '%'
-			)
 		));
 	}
 
@@ -83,7 +73,7 @@ class LocalizableBehavior extends ModelBehavior {
 		}
 
 		
-		//die(debug($model->data));
+		die(debug($model->data));
 		/*debug($model->data['Localization']);
 		foreach($model->data['Localization'] as $alias => $place) {
 			debug($place);
@@ -110,6 +100,35 @@ class LocalizableBehavior extends ModelBehavior {
 		}
 		else
 			return true;
+	}
+
+	public function afterFind(Model $model, $results, $primary) {
+		$results = $results[0];
+		$results['Localization']['Place'] = $model->Localization->Place->find('first', array(
+			'conditions' => array(
+				'Place.id' => $results['Localization']['place_id'],
+			),
+			'fields' => array(
+				'Place.id',
+				'Place.country_id',
+				'Place.reference',
+				'Place.name',
+				'Place.place_id'
+			),
+			'contain' => array(
+				'Country' => array(
+					'fields' => array(
+						'Country.iso'
+					)
+				),
+				'PlaceIn' => array(
+					'fields' => array(
+						'PlaceIn.name'
+					)
+				)
+			)
+		));
+		return array($results);
 	}
 
 	public function afterSave(Model $model, $created) {

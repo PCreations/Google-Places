@@ -53,8 +53,8 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array()) {
-		$this->defaultCountry = $iso2;
+	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array(), $localizationData = array()) {
+		$this->defaultCountry = strtoupper($iso2);
 		$countriesInput = 'countries_autocomplete';
 		$establishmentAutocomplete = 'establishment_autocomplete';
 		$establishmentID = 'Localization.establishment_id';
@@ -62,7 +62,7 @@ class PlacesHelper extends AppHelper {
 		$classEstablishmentID = 'establishmentID';
 		$classEstablishmentReference = 'establishmentReference';
 
-		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
+		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $this->defaultCountry));
 		$this->_setAutocomplete(self::CITIES_SEARCH, $countriesInput, array('placeholder' => __('Establishment\'s city')));
 
 		echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $classEstablishmentID));

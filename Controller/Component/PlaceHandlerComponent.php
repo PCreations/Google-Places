@@ -5,6 +5,8 @@ class PlaceHandlerComponent extends Component {
 
 	public $controller;
 
+	public $modelClass;
+
 	public $_defaults = array(
 		'initForm' => true
 	);
@@ -29,17 +31,21 @@ class PlaceHandlerComponent extends Component {
 	}
 
 	public function initAutocompleteForm($modelClass = false) {
-		$modelClass = ($modelClass === false) ? $this->controller->modelClass : $modelClass;
+		$this->modelClass = ($modelClass === false) ? $this->controller->modelClass : $modelClass;
 		/*if(!$this->controller->{$modelClass}->Localization->validates()) {
 			debug($this->controller->{$modelClass}->Localization->validationErrors);
 		}*/
-		if(!$this->controller->{$modelClass}->Behaviors->attached('GooglePlaces.Localizable')) {
-			$this->controller->{$modelClass}->Behaviors->load('GooglePlaces.Localizable');
+		if(!$this->controller->{$this->modelClass}->Behaviors->attached('GooglePlaces.Localizable')) {
+			$this->controller->{$this->modelClass}->Behaviors->load('GooglePlaces.Localizable');
 		}
-		$this->controller->set('countries', $this->controller->{$modelClass}->getCountriesList());
-		$this->controller->set('defaultCountry', $this->controller->{$modelClass}->getCountryFromLocale());
+		$this->controller->set('countries', $this->controller->{$this->modelClass}->getCountriesList());
+		$this->controller->set('defaultCountry', 'fr');
+		
 	}
 
+	public function beforeRender(Controller $controller) {
+		$controller->set('localizationData', $controller->request->data['Localization']);
+	}
 }
 
 ?>
