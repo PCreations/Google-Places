@@ -51,39 +51,32 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function beforeSave(Model $model) {
-		//return false;
+		return false;
 	}
 
 	public function beforeValidate(Model $model) {
 		//Many inputs
+<<<<<<< HEAD
 		
 		/* Place report request */
 		if(isset($model->data['Localization']['action']) && $model->data['Localization']['action'] == 'place_report') {
-			/*$newPlace = $model->Localization->Place->gpAPI()->add(
+			$newPlace = $model->Localization->Place->gpAPI()->add(
 				$model->data['Geocode']['latitude'], 
 				$model->data['Geocode']['longitude'], 
 				$model->data['Licence']['establishment_autocomplete'], 
 				$model->data['Establishment']['types']
-			);*/
-			$newPlace = array(
-				'id' => '1b67b6e8743a7d9176779f95f22b9a0c7e2767ba',
-				'reference' => 'CkQxAAAAJg9BZYZ2dxCfitgpJkSVKax4c3IVlsha_cyEoVEqBRyxojwESM3alo10OzHV-OUaVwa0KFL7WGa2Ec9C1rrmShIQvq3RFmpu2TSDvhXvGUQqbxoU9EIiSEPSArErcRCv_fpKU_P-41U',
-				'status' => 'OK'
 			);
-			if($newPlace['status'] != 'OK') {
-				die('Unable to add place. Server respond with ' . $newPlace['status'] . ' status'); 
-			}
-
-			/* Set up localization information et clean up unused data */
-			$model->data['Localization']['establishment_id'] = $newPlace['id'];
-			$model->data['Localization']['establishment_reference'] = $newPlace['reference'];
-			unset($model->data['Localization']['action']);
-			unset($model->data['Establishment']);
-			unset($model->data['Geocode']);
 		}
 
-		
-		//die(debug($model->data));
+		debug($newPlace);
+		die(debug($model->data));
+=======
+		die(debug($model->data));
+		/* Place report request */
+		if(isset($model->data['Localization']['action']) && $model->data['Localization']['action'] == 'place_report') {
+			$newPlace = $model->Localization->Place->gpAPI()->add();
+		}
+>>>>>>> 8a68c98... Add latitude & longitude from geocode for new place
 		/*debug($model->data['Localization']);
 		foreach($model->data['Localization'] as $alias => $place) {
 			debug($place);
@@ -109,7 +102,7 @@ class LocalizableBehavior extends ModelBehavior {
 			return $model->Localization->validates();
 		}
 		else
-			return true;
+			return false;
 	}
 
 	public function afterSave(Model $model, $created) {

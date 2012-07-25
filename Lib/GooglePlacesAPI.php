@@ -130,7 +130,8 @@ class GooglePlacesAPI {
 		);
 		$types = array($types);
 		$parameters = Set::merge(compact('location', 'accuracy', 'name', 'types'), $optionnalParameters);
-		$response = $this->sendRequest('http://localhost/lsbox/google_places/places/test', $parameters, '', false);
+		$response = $this->sendRequest(self::PLACE_ADD_URL, $parameters, 'json', false, 'sensor='.(($sensor) ? 'true' : 'false').'&key='.$this->apiKey);
+		return $response;
 	}
 
 	public function detail($reference, $sensor = false, $optionnalParameters = array(), $output = "json") {

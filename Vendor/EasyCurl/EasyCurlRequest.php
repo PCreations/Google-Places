@@ -492,6 +492,7 @@ class EasyCurlRequest
         curl_setopt($this->curlInstance, CURLOPT_STDERR, fopen(APP . DS . 'Plugin' . DS . 'GooglePlaces' . DS . 'Vendor' . DS . 'EasyCurl' . DS . 'stderr.curl', 'r+'));
         curl_setopt($this->curlInstance, CURLOPT_VERBOSE, 1);
         $result = curl_exec($this->curlInstance);
+        //debug(curl_getinfo($this->curlInstance, CURLINFO_HEADER_OUT));
         if ($result === false)
         {
             return new EasyCurlError($this->curlInstance);
