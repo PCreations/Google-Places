@@ -44,7 +44,7 @@ class PlaceHandlerComponent extends Component {
 	}
 
 	public function beforeRender(Controller $controller) {
-		$controller->set('localizationData', $controller->request->data['Localization']);
+		//$controller->set('localizationData', $controller->request->data['Localization']);
 	}
 }
 

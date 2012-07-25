@@ -73,7 +73,6 @@ class LocalizableBehavior extends ModelBehavior {
 		}
 
 		
-		die(debug($model->data));
 		/*debug($model->data['Localization']);
 		foreach($model->data['Localization'] as $alias => $place) {
 			debug($place);
@@ -103,37 +102,54 @@ class LocalizableBehavior extends ModelBehavior {
 	}
 
 	public function afterFind(Model $model, $results, $primary) {
-		$results = $results[0];
-		$results['Localization']['Place'] = $model->Localization->Place->find('first', array(
-			'conditions' => array(
-				'Place.id' => $results['Localization']['place_id'],
-			),
-			'fields' => array(
-				'Place.id',
-				'Place.country_id',
-				'Place.reference',
-				'Place.name',
-				'Place.place_id'
-			),
-			'contain' => array(
-				'Country' => array(
+		
+		foreach($results as &$result) {
+			if(isset($result['Localization'])) {
+				$result['Localization']['Place'] = $model->Localization->Place->find('first', array(
+					'conditions' => array(
+						'Place.id' => $result['Localization']['place_id'],
+					),
 					'fields' => array(
-						'Country.iso',
-						'Country.name'
+						'Place.id',
+						'Place.country_id',
+						'Place.reference',
+						'Place.name',
+						'Place.place_id'
+					),
+					'contain' => array(
+						'Country' => array(
+							'fields' => array(
+								'Country.iso',
+								'Country.name'
+							)
+						),
+						'PlaceIn' => array(
+							'fields' => array(
+								'PlaceIn.name',
+								'PlaceIn.reference',
+							)
+						)
 					)
-				),
-				'PlaceIn' => array(
-					'fields' => array(
-						'PlaceIn.name'
-					)
-				)
-			)
-		));
-		return array($results);
+				));
+			}
+		}
+		return $results;
 	}
 
 	public function afterSave(Model $model, $created) {
-		if($created || !isset($model->data['Localization']['foreign_key'])) {
+		$update = false;
+		$establishmentInCity = isset($model->data['Localization']['establishment_id']);
+		if(!$created) {
+			$localization = $model->Localization->find('first', array(
+				'conditions' => array(
+					'Localization.model' => $model->alias,
+					'Localization.foreign_key' => $model->id,
+				),
+				'contain' => array()
+			));
+			$update = ($localization['Localization']['place_id'] != ($establishmentInCity ? $model->data['Localization']['establishment_id'] : $model->data['Localization']['place_id']));
+		}
+		if($created || !isset($model->data['Localization']['foreign_key']) || $update) {
 			/* Check for saving place if not already exists in db or for place id update*/
 			debug($model->data['Localization']);
 			$model->Localization->Place->placeRoutine(
@@ -157,6 +173,11 @@ class LocalizableBehavior extends ModelBehavior {
 			unset($model->data['Localization']['place_reference']);
 			unset($model->data['Localization']['country_id']);
 
+			/* Delete localized association before saving new one */
+			if($update) {
+				$model->Localization->delete($localization['Localization']['id']);
+			}
+
 			/* Save localized association */
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;
@@ -173,7 +194,8 @@ class LocalizableBehavior extends ModelBehavior {
 			}
 		}
 		else {
-			
+			$model->data['Localization']['foreign_key'] = $model->id;
+			$model->data['Localization']['model'] = $model->alias;
 		}
 	}
 }

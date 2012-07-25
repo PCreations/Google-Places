@@ -53,7 +53,7 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
-	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array(), $localizationData = array()) {
+	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array(), $defaultValues = array()) {
 		$this->defaultCountry = strtoupper($iso2);
 		$countriesInput = 'countries_autocomplete';
 		$establishmentAutocomplete = 'establishment_autocomplete';
@@ -62,11 +62,15 @@ class PlacesHelper extends AppHelper {
 		$classEstablishmentID = 'establishmentID';
 		$classEstablishmentReference = 'establishmentReference';
 
-		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $this->defaultCountry));
-		$this->_setAutocomplete(self::CITIES_SEARCH, $countriesInput, array('placeholder' => __('Establishment\'s city')));
+		$countriesInputDefault = (!empty($defaultValues['Place']['Country']['iso'])) ? $defaultValues['Place']['Country']['iso'] : $this->defaultCountry;
+		$establishmentIDdefault = (!empty($defaultValues['Place']['Place']['id'])) ? $defaultValues['Place']['Place']['id'] : '';
+		$establishmentReferenceDefault = (!empty($defaultValues['Place']['Place']['reference'])) ? $defaultValues['Place']['Place']['reference'] : '';
 
-		echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $classEstablishmentID));
-		echo $this->Form->hidden($establishmentReference, array('id' => $establishmentReference, 'class' => $classEstablishmentReference));
+		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $countriesInputDefault));
+		$this->_setAutocomplete(self::CITIES_SEARCH, $countriesInput, array('placeholder' => __('Establishment\'s city')), $countriesInputDefault, false, $defaultValues);
+
+		echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $classEstablishmentID, 'value' => $establishmentIDdefault));
+		echo $this->Form->hidden($establishmentReference, array('id' => $establishmentReference, 'class' => $classEstablishmentReference, 'value' => $establishmentReferenceDefault));
 		echo $this->Form->input($establishmentAutocomplete, array(
 			'class' => 'establishmentAutocomplete',
 			'div' => array(
@@ -153,7 +157,7 @@ class PlacesHelper extends AppHelper {
 	/*
 	* Basic function to find place just by country restictions.
 	*/
-	private function _setAutocomplete($type, $countriesInput, $autocompleteInputOptions, $defaultCountry = null, $printJS = false) {
+	private function _setAutocomplete($type, $countriesInput, $autocompleteInputOptions, $defaultCountry = null, $printJS = false, $defaultValues = array()) {
 		if($defaultCountry == null)
 			$defaultCountry = $this->defaultCountry;
 		$placeID = "Localization.place_id";
@@ -164,9 +168,17 @@ class PlacesHelper extends AppHelper {
 		$classPlaceReference = 'placeReference';
 		$inputTemplate = ':type_autocomplete';
 		$autocompleteInput = '';
-		echo $this->Form->hidden($countryID, array('id' => $countryID, 'class' => $classCountryID, 'value' => $defaultCountry));
-		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID));
-		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference));
+
+		//determines if the place is just a geocode/city/establishment or if the place was store with city
+		$wichPlace = isset($defaultValues['Place']['PlaceIn']) ? 'PlaceIn' : 'Place';
+		$placeIDdefault = !empty($defaultValues['Place'][$wichPlace]['id']) ? $defaultValues['Place'][$wichPlace]['id'] : '';
+		$countryIDdefault = $defaultCountry;
+		$placeReferenceDefault = !empty($defaultValues['Place'][$wichPlace]['reference']) ? $defaultValues['Place'][$wichPlace]['reference'] : '';
+
+
+		echo $this->Form->hidden($countryID, array('id' => $countryID, 'class' => $classCountryID, 'value' => $countryIDdefault));
+		echo $this->Form->hidden($placeID, array('id' => $placeID, 'class' => $classPlaceID, 'value' => $placeIDdefault));
+		echo $this->Form->hidden($placeReference, array('id' => $placeReference, 'class' => $classPlaceReference, 'value' => $placeReferenceDefault));
 
 		switch($type) {
 			case self::CITIES_SEARCH:
@@ -188,7 +200,7 @@ class PlacesHelper extends AppHelper {
 			var gpInput = new GooglePlacesAutocompleteInput(
 				'<?php echo $autocompleteInput;?>', {
 					types: ['<?php echo $type;?>'],
-					componentRestrictions: {country: '<?php echo strtolower($defaultCountry);?>'}
+					componentRestrictions: {country: '<?php echo strtolower($countryIDdefault);?>'}
 				},
 				'<?php echo $countriesInput;?>',
 				'<?php echo $classCountryID;?>',
