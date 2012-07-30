@@ -49,19 +49,13 @@ class LocalizableBehavior extends ModelBehavior {
 		
 		/* Place report request */
 		if(isset($model->data['Localization']['action']) && $model->data['Localization']['action'] == 'place_report') {
-			/*$newPlace = $model->Localization->Place->gpAPI()->add(
-				$model->data['Geocode']['latitude'], 
-				$model->data['Geocode']['longitude'], 
-				$model->data['Licence']['establishment_autocomplete'], 
-				$model->data['Establishment']['types']
-			);*/
 			$newPlace = array(
 				'id' => '1b67b6e8743a7d9176779f95f22b9a0c7e2767ba',
 				'reference' => 'CkQxAAAAJg9BZYZ2dxCfitgpJkSVKax4c3IVlsha_cyEoVEqBRyxojwESM3alo10OzHV-OUaVwa0KFL7WGa2Ec9C1rrmShIQvq3RFmpu2TSDvhXvGUQqbxoU9EIiSEPSArErcRCv_fpKU_P-41U',
 				'status' => 'OK'
 			);
 			if($newPlace['status'] != 'OK') {
-				die('Unable to add place. Server respond with ' . $newPlace['status'] . ' status'); 
+				die('Unable to add place. Server responded with ' . $newPlace['status'] . ' status'); 
 			}
 
 			/* Set up localization information et clean up unused data */
@@ -73,10 +67,17 @@ class LocalizableBehavior extends ModelBehavior {
 		}
 
 		if(isset($model->data['Localization'])) {
+			if(isset($model->data['Localization']['establishment_id'])) {
+				/* If establisment_id is empty, only city is saved */
+				if(empty($model->data['Localization']['establishment_id'])) {
+					unset($model->data['Localization']['establishment_id']);
+					unset($model->data['Localization']['establishment_reference']);
+				}
+			}
 			$model->Localization->set(array(
 				'Localization' => $model->data['Localization']
 			));
-			if(isset($model->data['Localization']['establishment_id'])) {
+			/*if(isset($model->data['Localization']['establishment_id'])) {
 				$model->Localization->validate['establishment_id'] = array(
 					'notempty' => array(
 						'rule' => array('notempty'),
@@ -85,7 +86,7 @@ class LocalizableBehavior extends ModelBehavior {
 						'required' => true,
 					),
 				);
-			}
+			}*/
 			return $model->Localization->validates();
 		}
 		else
