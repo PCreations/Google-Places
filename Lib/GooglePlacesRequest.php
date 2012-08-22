@@ -1,14 +1,59 @@
 <?php
+/**
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
+ *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy
+ */
 
 App::uses('GooglePlacesResponse', 'GooglePlaces.Lib');
 App::uses('GooglePlacesException', 'GooglePlaces.Lib');
 
+/**
+ * Handles sending requests to google places API
+ *
+ * @package		GooglePlaces
+ * @subpackage	GooglePlaces.Lib
+ */
 class GooglePlacesRequest {
-	
+
+/**
+ * Current request's url
+ *
+ * @var string
+ */
 	public $url;
+
+/**
+ * Output for request
+ *
+ * @var string
+ */
 	public $output = "json";
+	
+/**
+ * Request's parameters
+ *
+ * @var array
+ */
 	public $parameters = array();
 
+/**
+ * Sends a request with EasyCurlHeader for GET request and with cURL for POST ones (have to fixed that)
+ *
+ * @param string $url The request's url
+ * @param string $output The request's output (json/xml)
+ * @param array $parameters The request's parameters (json/xml)
+ * @param boolean $get If set to true the request will be GET request
+ * @param string $urlSuffix Additionnal things to append to url
+ * @return GooglePlacesResponse $response The request's response
+ * @see GooglePlacesResponse::__construct()
+ * @todo Fix the bug with EasyCurl for POST request
+ */
 	public function send($url, $output, $parameters, $get, $urlSuffix) {
 		if($get) {
 			$this->output = $output;
@@ -42,7 +87,7 @@ class GooglePlacesRequest {
 				die($e->getMessage());
 			}
 		}
-		else { //TODO check why it's doesn't work with EasyCurl
+		else {
 			$data_string = json_encode($parameters);
 			$this->url = $this->buildRequest($url) . $urlSuffix;
 			$curl = curl_init($this->url);
@@ -62,6 +107,12 @@ class GooglePlacesRequest {
 		}
 	}
 
+/**
+ * Builds request by merging output and parameters
+ *
+ * @param string $url The request's url
+ * @return string $url The merged request's url
+ */
 	private function buildRequest($url) {
 		$url .= "{$this->output}?";
 		foreach($this->parameters as $name => $value) {
@@ -72,12 +123,6 @@ class GooglePlacesRequest {
 			$url .= "$name=$value&";
 		}
 		return rtrim($url, '&');
-	}
-
-	private function buildPostParameters(&$request, $parameters) {
-		foreach($parameters as $name => $value) {
-			$request->AddPostParameter(new EasyCurlPostParameter($name, $value));
-		}
 	}
 }
 

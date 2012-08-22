@@ -1,7 +1,30 @@
 <?php
+/**
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
+ *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy
+ */
 
+/**
+ * LocalizableBehavior makes any models localizable (captain obvious) by city, or by establishment in city via the Google Places API
+ *
+ * @package		GooglePlaces
+ * @subpackage	GooglePlaces.Model.Behavior	
+ */
 class LocalizableBehavior extends ModelBehavior {
-	
+
+/**
+ * Setup function. A hasOne association with Localization model is binded to the current model. By the way a belongsTo association with current model is binded to Localization model. Both are persistent.
+ *
+ * @param Model $model current model
+ * @param array $options
+ * @see Localization::__construct()
+ */
 	public function setup($model, $options = array()) {
 		$model->bindModel(
 			array(
@@ -34,6 +57,12 @@ class LocalizableBehavior extends ModelBehavior {
 		);
 	}
 
+/**
+ * Retrieves countries list through Place model associated with Localization model
+ *
+ * @param Model $model current model
+ * @return array $countries The countries list
+ */
 	public function getCountriesList(Model $model) {
 		return $model->Localization->Place->Country->find('list', array(
 			'order' => 'name'
@@ -44,6 +73,12 @@ class LocalizableBehavior extends ModelBehavior {
 		//return false;
 	}
 
+/**
+ * Overriding model's beforeValidate method in order to validates localization data
+ *
+ * @param Model $model Model using this behavior
+ * @return mixed False or null will abort the operation. Any other result will continue.
+ */
 	public function beforeValidate(Model $model) {
 		//Many inputs
 		
@@ -93,6 +128,14 @@ class LocalizableBehavior extends ModelBehavior {
 			return true;
 	}
 
+/**
+ * Automatically append the localization data to the model's data
+ *
+ * @param Model $model Model using this behavior
+ * @param mixed $results The results of the find operation
+ * @param boolean $primary Whether this model is being queried directly (vs. being queried as an association)
+ * @return mixed An array value will replace the value of $results - any other value will be ignored.
+ */
 	public function afterFind(Model $model, $results, $primary) {
 		
 		foreach($results as &$result) {
@@ -128,6 +171,13 @@ class LocalizableBehavior extends ModelBehavior {
 		return $results;
 	}
 
+/**
+ * Save localization data and localized association
+ *
+ * @param Model $model Model using this behavior
+ * @param boolean $created True if this save created a new record
+ * @return boolean
+ */
 	public function afterSave(Model $model, $created) {
 		$update = false;
 		$establishmentInCity = isset($model->data['Localization']['establishment_id']);

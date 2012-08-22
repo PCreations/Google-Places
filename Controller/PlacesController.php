@@ -1,25 +1,56 @@
 <?php
-App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
 /**
- * Places Controller
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
  *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy (pcriulan@gmail.com)
+ */
+
+App::uses('GooglePlacesAppController', 'GooglePlaces.Controller');
+
+/**
+ * GooglePlaces Places Controller
+ *
+ * @package		GooglePlaces
+ * @subpackage	GooglePlaces.Controller	
  */
 class PlacesController extends GooglePlacesAppController {
 
+/**
+ * Components
+ *
+ * @var array
+ */
 	public $components = array('RequestHandler');
+	
+/**
+ * Helpers
+ *
+ * @var array
+ */
 	public $helpers = array('GooglePlaces.Places');
 
-	public function handleCityAutocomplete() {
+
+	/*public function handleCityAutocomplete() {
 		$this->autoRender = false;
 		
-		/*if(!$this->RequestHandler->isAjax()) {
+		if(!$this->RequestHandler->isAjax()) {
 			throw new MethodNotAllowedException();
 		}
 
 		$place = json_decode($_POST['place']);
-		$this->PlaceHandler->savePlace($place);*/
-	}
+		$this->PlaceHandler->savePlace($place);
+	}*/
 
+/**
+ * Handles establishement places autocomplete
+ *
+ * This method is an ajax callback to handle establishment autocomplete. See Place::getPlacePredictionsByCity() for details.
+ */
 	public function handleEstablishmentAutocomplete() {
 		$this->view = 'predictions_json';
 
@@ -33,6 +64,11 @@ class PlacesController extends GooglePlacesAppController {
 
 	}
 
+/**
+ * Handles geocode (address) places autocomplete
+ *
+ * This method is an ajax callback to handle geocode autocomplete. See Place::getPlacePredictionsByCity() for details.
+ */
 	public function handleGeocodeAutocomplete() {
 		$this->view = 'predictions_json';
 
@@ -57,6 +93,11 @@ class PlacesController extends GooglePlacesAppController {
 		$this->set(compact("countriesInput", "country", "cityName", "types"));
 	}
 
+/**
+ * Get geocode's details.
+ *
+ * Ajax callback, return geocode's details in json format
+ */
 	public function geocodeDetails() {
 
 		if(!$this->RequestHandler->isAjax()) {

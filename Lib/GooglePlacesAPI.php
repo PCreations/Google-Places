@@ -1,16 +1,49 @@
 <?php
+/**
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
+ *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy
+ */
 
 App::uses('Set', 'Utility');
 App::uses('GooglePlacesRequest', 'GooglePlaces.Lib');
 App::uses('GooglePlacesResponse', 'GooglePlaces.Lib');
 App::uses('GooglePlacesException', 'GooglePlaces.Lib');
 
+/**
+ * GooglePlacesAPI to interact with GooglePlaces web services
+ *
+ * @package		GooglePlaces
+ * @subpackage	GooglePlaces.Lib
+ */
+
 class GooglePlacesAPI {
 
+/**
+ * Developper's api key
+ *
+ * @var string
+ */
 	public $apiKey;
 
+/**
+ * GooglePlacesRequest instance
+ *
+ * @var GooglePlacesRequest
+ * @see GooglePlacesRequest
+ */
 	public $GooglePlacesRequest;
 
+/**
+ * List of supported place types for adding request
+ *
+ * @var array
+ */
 	public $addSupportedPlaceTypes = array(
 		'accounting',
 		'airport',
@@ -110,45 +143,116 @@ class GooglePlacesAPI {
 		'zoo'
 	);
 
+/**
+ * Google place web service url to retrieve place details
+ *
+ * @const PLACE_DETAIL_URL
+ */
 	const PLACE_DETAIL_URL = "https://maps.googleapis.com/maps/api/place/details/";
+
+/**
+ * Google place web service url to retrieve places predictions (autocomplete suggestions)
+ *
+ * @const PLACE_AUTOCOMPLETE_URL
+ */
 	const PLACE_AUTOCOMPLETE_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/";
+
+/**
+ * Google place web service url to add place
+ *
+ * @const PLACE_ADD_URL
+ */
 	const PLACE_ADD_URL = "https://maps.googleapis.com/maps/api/place/add/";
 
 /**
  * Constructor
  *
+ * @param string $apiKey the developper api key
  */
 	public function __construct($apiKey) {
 		$this->apiKey = $apiKey;
 		$this->GooglePlacesRequest = new GooglePlacesRequest();
 	}
 
+/**
+ * Sends request to report place in Google database
+ *
+ * @param double $latitude The place's latitude
+ * @param double $longitude The place's longitude
+ * @param string $name The place's name
+ * @param array $types Array of place's types
+ * @param array $optionnalParameters Array of optionnalParameters
+ * ### Possible optionnal parameters
+ *
+ * - `language`: The language in which the Place's name is being reported. See the list of supported languages and their codes. Note that we often update supported languages so this list may not be exhaustive (https://spreadsheets.google.com/pub?key=p9pdwsai2hDMsLkXsoM05KQ&gid=1)
+ * @param int $accuracy The accuracy of the location signal on which this request is based, expressed in meters
+ * @param boolean $sensor Indicates whether or not the Place request came from a device using a location sensor (e.g. a GPS) to determine the location sent in this request. This value must be either true or false
+ * @param output $output Response output (json or xml)
+ * @return GooglePlacesResponse	$response Instance of GooglePlacesResponse
+ * @see GooglePlacesResponse::__construct()
+ */
 	public function add($latitude, $longitude, $name, $types, $optionnalParameters = array(), $accuracy = 10, $sensor = false, $output = "json") {
 		$location = array(
 			'lat' => (double)$latitude,
 			'lng' => (double)$longitude
 		);
 		$types = array($types);
-		$parameters = Set::merge(compact('location', 'accuracy', 'name', 'types'), $optionnalParameters);
+		$parameters = Hash::merge(compact('location', 'accuracy', 'name', 'types'), $optionnalParameters);
 		$response = $this->sendRequest(self::PLACE_ADD_URL, $parameters, 'json', false, 'sensor='.(($sensor) ? 'true' : 'false').'&key='.$this->apiKey);
 		return $response;
 	}
 
+/**
+ * Sends request to get place details
+ *
+ * @param string $reference The place's reference
+ * @param boolean $sensor Indicates whether or not the Place request came from a device using a location sensor (e.g. a GPS) to determine the location sent in this request. This value must be either true or false
+ * @param array $optionnalParameters Array of optionnalParameters
+ * ### Possible optionnal parameters
+ *
+ * - `language`: The language in which the Place's name is being reported. See the list of supported languages and their codes. Note that we often update supported languages so this list may not be exhaustive (https://spreadsheets.google.com/pub?key=p9pdwsai2hDMsLkXsoM05KQ&gid=1)
+ * @param output $output Response output (json or xml)
+ * @return string $result the response's result
+ * @see GooglePlacesResponse::__construct()
+ */
 	public function detail($reference, $sensor = false, $optionnalParameters = array(), $output = "json") {
 		$key = $this->apiKey;
-		$parameters = Set::merge(compact("reference", "sensor", "key"), $optionnalParameters);
+		$parameters = Hash::merge(compact("reference", "sensor", "key"), $optionnalParameters);
 		$response = $this->sendRequest(self::PLACE_DETAIL_URL, $parameters, $output);
 		return $response->result;
 	}
 
+/**
+ * Sends request to get place's predictions
+ *
+ * @param string $input The input text
+ * @param boolean $sensor Indicates whether or not the Place request came from a device using a location sensor (e.g. a GPS) to determine the location sent in this request. This value must be either true or false
+ * @param array $optionnalParameters Array of optionnalParameters
+ * ### Possible optionnal parameters
+ *
+ * - `language`: The language in which the Place's name is being reported. See the list of supported languages and their codes. Note that we often update supported languages so this list may not be exhaustive (https://spreadsheets.google.com/pub?key=p9pdwsai2hDMsLkXsoM05KQ&gid=1)
+ * @param output $output Response output (json or xml)
+ * @return string $data The response predictions
+ */
 	public function autocomplete($input, $sensor = false, $optionnalParameters = array(), $output = "json") {
 		$key = $this->apiKey;
 		$input = urlencode($input);
-		$parameters = Set::merge(compact("input", "sensor", "key"), $optionnalParameters);
+		$parameters = Hash::merge(compact("input", "sensor", "key"), $optionnalParameters);
 		$response = $this->sendRequest(self::PLACE_AUTOCOMPLETE_URL, $parameters, $output);
 		return isset($response->predictions) ? $response->predictions : null;
 	}
 
+/**
+ * Uses GooglePlacesRequest to send request to Google Places API
+ *
+ * @param string $url The api url
+ * @param array $parameters Array of url params
+ * @param string $output Response format (json/xml)
+ * @param boolean $get If set to true a GET request will be sent
+ * @param string $urlSuffix Additionnals things to append to url
+ * @return string $data The response data
+ * @see GooglePlacesRequest::send()
+ */
 	private function sendRequest($url, $parameters, $output, $get = true, $urlSuffix = '') {
 		$response = $this->GooglePlacesRequest->send($url, $output, $parameters, $get, $urlSuffix);
 		return $response->data;

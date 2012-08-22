@@ -1,10 +1,22 @@
 <?php
+/**
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
+ *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy
+ */
+
 App::uses('PlacesAppModel', 'GooglePlaces.Model');
+
 /**
  * Country Model
  *
- * @property Geoname $Geoname
- * @property Place $Place
+ * @package GooglePlaces
+ * @subpackage GooglePlaces.Model
  */
 class Country extends GooglePlacesAppModel {
 

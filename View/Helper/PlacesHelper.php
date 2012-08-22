@@ -47,7 +47,7 @@ class PlacesHelper extends AppHelper {
 
 	public function __construct(View $view, $settings = array()) {
 		parent::__construct($view, $settings);
-		$this->_settings = Set::merge($this->_settings, $settings);
+		$this->_settings = Hash::merge($this->_settings, $settings);
 		$this->view = $view;
 		$this->_cityAutocompleteCallback = $this->url($this->_cityAutocompleteCallback);
 		$this->_establishmentAutocompleteCallback = $this->url($this->_establishmentAutocompleteCallback);
@@ -195,7 +195,7 @@ class PlacesHelper extends AppHelper {
 				$autocompleteInput = String::insert($inputTemplate, array('type' => $type));
 				break;
 		}
-		$autocompleteInputOptions = Set::merge($autocompleteInputOptions, array('id' => $autocompleteInput));
+		$autocompleteInputOptions = Hash::merge($autocompleteInputOptions, array('id' => $autocompleteInput));
 
 		echo $this->Form->input($autocompleteInput, $autocompleteInputOptions);
 		$this->Html->scriptStart(array('inline' => $printJS));

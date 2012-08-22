@@ -1,11 +1,22 @@
 <?php
+/**
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
+ *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy
+ */
+
 App::uses('GooglePlacesAppModel', 'GooglePlaces.Model');
+
 /**
  * Place Model
  *
- * @property Country $Country
- * @property Localized $Localized
- * @property PlaceType $PlaceType
+ * @package GooglePlaces
+ * @subpackage GooglePlaces.Model
  */
 class Place extends GooglePlacesAppModel {
 
@@ -78,6 +89,14 @@ class Place extends GooglePlacesAppModel {
 		)
 	);
 
+/**
+ * Place routine. Checks if place (city) already exists in db and if not adds it and it's types
+ *
+ * @param string $placeID The place's id
+ * @param string $placeReference The place's reference
+ * @param string $countryID The country's id
+ * @see Place::routine()
+ */
 	public function placeRoutine($placeID, $placeReference, $countryID) {
 		if(!$this->routine($placeID, $placeReference)) {
 			/* Add the place */
@@ -86,6 +105,15 @@ class Place extends GooglePlacesAppModel {
 		}
 	}
 
+/**
+ * Establishment routine. Checks if establishment already exists in db and if not adds it and it's types
+ *
+ * @param string $establishmentID The establishment's id
+ * @param string $establishmentReference The establishment's reference
+ * @param string $placeID The place's id (the city)
+ * @param string $countryID The country's id
+ * @see Place::routine()
+ */
 	public function establishmentRoutine($establishmentID, $establishmentReference, $placeID, $countryID) {
 		if(!$this->routine($establishmentID, $establishmentReference)) {
 			/* Add the establishment */
@@ -94,6 +122,15 @@ class Place extends GooglePlacesAppModel {
 		}
 	}
 
+/**
+ * Routine when getting place's details. Checks if place already exists, if not place is added, otherwise the function checks for place's id update
+ *
+ * @param string $id place's id
+ * @param string $reference place's reference
+ * @return boolean true if place already exists in db
+ * @see Place::isAlreadyExists()
+ * @see Place::updatePlaceId()
+ */
 	private function routine($id, $reference) {
 		$details = $this->gpAPI()->detail($reference);
 
@@ -109,6 +146,12 @@ class Place extends GooglePlacesAppModel {
 		return false;
 	}
 
+/**
+ * Checks if place already exists in db
+ *
+ * @param string $id place's id
+ * @return boolean true if place already exists in db
+ */
 	public function isAlreadyExists($id) {
 		$result = $this->find('first', array(
 			'contain' => array(),
@@ -119,13 +162,32 @@ class Place extends GooglePlacesAppModel {
 		return !empty($result);
 	}
 
+/**
+ * Updates place's id if needed
+ *
+ * @param string $oldID The old place's id
+ * @param string $newID The new place's id
+ */
 	public function updatePlaceId($oldId, $newId) {
 		$this->read(null, $oldId);
 		$this->set('id', $newId);
 		$this->save();
 	}
 
-	public function getPlacePredictionsByCity($input, $iso2, $cityName, $type, $templateNoResult = 'No result for :input', $lat = null, $lng = null, $radius = 500000, $force = false) {
+/**
+ * Retrieves place's predictions within specified city
+ *
+ * @param string $input The user input
+ * @param string $iso2 The alpha-2 ISO 3166-1 country code
+ * @param string $cityName The city name. Used to prepend user input in order to filter by city (impossible for now directly with Google Places component restrictions)
+ * @param string $type The place's type
+ * @param string $templateNoResult The text will be prompted in autocomplete if there is no result. ":input" will be replaced by the user input
+ * @param double $lat The biasing lattitude to restrict result around specific radius
+ * @param double $lng The biasing longitude to restrict result around specific radius
+ * @param int $radius The radius for biasing
+ * @return array Array of predictions formatted to suit JqueryUI autocomplete conventions
+ */
+	public function getPlacePredictionsByCity($input, $iso2, $cityName, $type, $templateNoResult = 'No result for :input', $lat = null, $lng = null, $radius = 500000) {
 		$optionnalParameters = array(
 			'components' => 'country:' . strtolower($iso2),
 			'types' => $type,
@@ -150,6 +212,17 @@ class Place extends GooglePlacesAppModel {
 		return empty($predictions) ? array(array('id' => '-1', 'label' => $templateNoResult)) : $predictions;
 	}
 
+/**
+ * Retrieves geocode's predictions within specified city
+ *
+ * @param string $input The user input
+ * @param string $iso2 The alpha-2 ISO 3166-1 country code
+ * @param string $cityName The city name. Used to prepend user input in order to filter by city (impossible for now directly with Google Places component restrictions)
+ * @param double $lat The biasing lattitude to restrict result around specific radius
+ * @param double $lng The biasing longitude to restrict result around specific radius
+ * @param int $radius The radius for biasing
+ * @return array Array of predictions formatted to suit JqueryUI autocomplete conventions
+ */
 	public function getGeocodePredictionsByCity($input, $iso2, $cityName, $lat, $lng, $radius = 50000, $force = false) {
 		$optionnalParameters = array(
 			'components' => 'country:' . strtolower($iso2),
@@ -169,23 +242,13 @@ class Place extends GooglePlacesAppModel {
 		$restrictedPredictions = array();
 		foreach($predictions as $prediction) {
 			//$placeDetail = $this->gpAPI()->detail($prediction->reference);
-			/* Check if city name is found in description TODO: regexp */
+			/* Checks if city name is found in description TODO: regexp */
 			if(stripos($prediction->description, $cityName) !== false) {
 				$restrictedPredictions[] = array(
 							'id' => $prediction->id . '|' . $prediction->reference,
 							'label' => $prediction->description
 						);	
 			}
-			/*foreach($placeDetail->address_components as $addressComponent) {
-				$longName = $addressComponent->long_name;
-				if($addressComponent->long_name == $cityName) {
-					if(array_search('locality', $addressComponent->types) !== false)
-						$restrictedPredictions[] = array(
-							'id' => $prediction->id,
-							'label' => $prediction->description
-						);	
-				}
-			}*/
 		}
 		//$restrictedPredictions = $predictions;
 		return ($force === false) ? (empty($restrictedPredictions) ? array('id' => '-1', 'label' => __('No results for ' . $input)) : $restrictedPredictions) : $predictions;
