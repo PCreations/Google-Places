@@ -1,11 +1,11 @@
 <?php
 /**
- * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * GooglePlaces Plugin
  * 
  * Licensed under Creative Commons BY-SA
  * Redistribution of files must retain the above copyright notice.
  *
- * @link	http://lsbox.com
+ * @link	
  * @license CC BY-SA
  * @author Pierre Criulanscy
  */
