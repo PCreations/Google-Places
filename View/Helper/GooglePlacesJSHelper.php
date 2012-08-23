@@ -1,6 +1,6 @@
 <?php
 
-class GooglePlacesJSHelper extends AppHelper {
+/*class GooglePlacesJSHelper extends AppHelper {
 	
 	public $helper = array('Html', 'Js', 'Form');
 
@@ -11,8 +11,8 @@ class GooglePlacesJSHelper extends AppHelper {
 	}
 
 	public function addCityAutocomplete($countryField, $autocompleteInputOptions = array()) {
-		echo $this->Form->input()
+		echo $this->Form->input();
 	}
-}
+}*/
 
 ?>

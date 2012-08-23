@@ -1,50 +1,140 @@
 <?php
 /**
- * @todo : Nettoyer le Helper en supprimant la redondance de code en passant par une autocompletion full cURL et pas javascript. Prendre en charge correctement la validation (les messages d'erreurs ne sont pas affichés lors de l'édition) et gérer l'édition d'un lieu générique (juste geocode/establishment/city...)
-*/
+ * LiveShotBOX : Broadcast Live Music (http://lsbox.com)
+ * 
+ * Licensed under Creative Commons BY-SA
+ * Redistribution of files must retain the above copyright notice.
+ *
+ * @link	http://lsbox.com
+ * @license CC BY-SA
+ * @author Pierre Criulanscy
+ */
+
+App::uses('AppHelper', 'View/Helper');
+
+ /**
+  * Places Helper handles javascript autocomplete (cities and establishments) and place report and one line localization (place, city, country)
+  *
+  * @package	GooglePlaces
+  * @subpackage	GooglePlaces.View.Helper
+  * @todo : Nettoyer le Helper en supprimant la redondance de code en passant par une autocompletion full cURL et pas javascript. Prendre en charge correctement la validation (les messages d'erreurs ne sont pas affichés lors de l'édition) et gérer l'édition d'un lieu générique (juste geocode/establishment/city...)
+  */
 
 class PlacesHelper extends AppHelper {
-	
+
+/**
+ * Array of helpers
+ *
+ * @var array
+ */
 	public $helpers = array('Html', 'Js', 'Form');
+
+/**
+ * Current view
+ *
+ * @var View
+ */
 	public $view;
-	public $autocompleteInputs = array();
+
+/**
+ * Default country to select in countries' list (alpha-2 ISO 3166-1)
+ *
+ * @var string
+ */
 	public $defaultCountry;
 
-	protected $_settings = array(
-		'key' => null,
-	);
+/**
+ * Array of settings
+ *
+ * @var array
+ */
+	protected $_settings = array();
 
+/**
+ * Google component restrictions to cities search
+ *
+ * @var const CITIES_SEARCH
+ */
 	const CITIES_SEARCH = '(cities)';
+
+/**
+ * Google label for establishment search
+ *
+ * @var const ESTABLISHMENT_SEARCH
+ */
 	const ESTABLISHMENT_SEARCH = 'establishment';
+
+/**
+ * Google label for address search (geocode)
+ *
+ * @var const ADDRESS_SEARCH
+ */
 	const ADDRESS_SEARCH = 'geocode';
+
+/**
+ * Google component restrictions to regions search
+ *
+ * @var const REGIONS_SEARCH
+ */
 	const REGIONS_SEARCH = '(regions)';
 
+/**
+ * Google places API url
+ *
+ * @var const PLACES_API_URL
+ */
 	const PLACES_API_URL = "http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false";
-	
+
+/**
+ * Callback url informations to handle city autocomplete
+ *
+ * @var array
+ */
 	protected $_cityAutocompleteCallback = array(
 		'controller' => 'places',
 		'action' => 'handleCityAutocomplete',
 		'plugin' => 'google_places'
 	);
 
+/**
+ * Callback url informations to handle establishment autocomplete
+ *
+ * @var array
+ */
 	protected $_establishmentAutocompleteCallback = array(
 		'controller' => 'places',
 		'action' => 'handleEstablishmentAutocomplete',
 		'plugin' => 'google_places'
 	);
 
+/**
+ * Callback url informations to handle geocode autocomplete
+ *
+ * @var array
+ */
 	protected $_geocodeAutocompleteCallback = array(
 		'controller' => 'places',
 		'action' => 'handleGeocodeAutocomplete',
 		'plugin' => 'google_places'
 	);
 
+/**
+ * Callback url informations to handle place report
+ *
+ * @var array
+ */
 	protected $_addPlaceCallback = array(
 		'controller' => 'places',
 		'action' => 'handleAddPlace',
 		'plugin' => 'google_places'
 	);
 
+/**
+ * Constructor. Set the current view and set callback urls
+ *
+ * @param View $view The current view
+ * @param array $settings Optionnal settings
+ */
 	public function __construct(View $view, $settings = array()) {
 		parent::__construct($view, $settings);
 		$this->_settings = Hash::merge($this->_settings, $settings);
@@ -56,6 +146,26 @@ class PlacesHelper extends AppHelper {
 		
 	}
 
+/**
+ * This function handles the establishment autocomplete. The list of countries is displayed with default country selected. User can search for specific city in specified country. Helper manage automatically the Google Place component restrictions to restrict search to the selected country. If the user selects another country, javascript snippet will change automatically this component restrictions. As soos as the user selects city in displayed list, an another input appears to find some places (establishment) in this city. By keeping this input blank, current entity will be located only with city. If user fills this input, current entity will be located both by establishment and city. If place doesn't exist, a place report request will be sent.
+ *
+ * ### Example of use
+ *
+ * You can use this function by using $countries and $defaultCountry variable which are retrieved by the PlaceHandler component
+ *
+ * {{{
+ * $this->Places->autocompleteEstablishmentsInCity($countries, $defaultCountry);	
+ * }}}
+ *
+ * @param array $countries List of countries (directly available in view thanks to PlaceHandler component)
+ * @param string $iso2 The alpha-2 ISO 3166-1 country code
+ * @param array $autocompleteInputOptions Same array options than FormHelper::input() array options
+ * @param array $defaultValues Default values used to prefill form
+ * @see PlacesController::handleCityAutocomplete()
+ * @see PlacesController::handleEstablishmentAutocomplete()
+ * @see PlacesController::handleGeocodeAutocomplete()
+ * @see PlacesController::handleAddPlace()
+ */
 	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array(), $defaultValues = array()) {
 		$this->defaultCountry = strtoupper($iso2);
 		$countriesInput = 'countries_autocomplete';
@@ -149,17 +259,24 @@ class PlacesHelper extends AppHelper {
 		}
 	}
 
-	public function autocomplete($countries, $type = self::CITIES_SEARCH, $iso2 = "AD", $autocompleteInputOptions = array()) {
+	/*public function autocomplete($countries, $type = self::CITIES_SEARCH, $iso2 = "AD", $autocompleteInputOptions = array()) {
 		$this->defaultCountry = $iso2;
 		$countriesInput = 'countries_autocomplete';
 		
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $iso2));
 		$this->_setAutocomplete($type, $countriesInput, $autocompleteInputOptions);
-	}
+	}*/
 
-	/*
-	* Basic function to find place just by country restictions.
-	*/
+/**
+ * Handles the city autocomplete part
+ *
+ * @param string $type The autocomplete type
+ * @param array $countriesInput The list of countries
+ * @param array $autocompleteInputOptions Same array options than FormHelper::input() array options
+ * @param string $defaultCountry The default country (alpha-2 ISO 3166-1 country code)
+ * @param boolean $printJS If set to true `inline` key of HtmlHelper::scriptStart() will be set to true
+ * @param array $defaultValues Default values used to prefill form
+ */
 	private function _setAutocomplete($type, $countriesInput, $autocompleteInputOptions, $defaultCountry = null, $printJS = false, $defaultValues = array()) {
 		if($defaultCountry == null)
 			$defaultCountry = $this->defaultCountry;
@@ -220,6 +337,14 @@ class PlacesHelper extends AppHelper {
 			echo $jsBlock;
 	}
 
+/**
+ * Handles the place report by displaying input and do some javascript stuff
+ *
+ * @param array $countriesInput The list of countries
+ * @param string $country The alpha-2 ISO 3166-1 country code
+ * @param string $cityName The name of the city
+ * @param array $types The list of types. See GooglePlacesAPI::addSupportedPlaceTypes
+ */
 	public function addPlace($countriesInput, $country, $cityName, $types) {
 		echo $this->Form->input('Establishment.geocode', array('id' => 'geocode_autocomplete', 'placeholder' => 'Etablishment\'s address'));
 		echo $this->Form->input('Establishment.types', array('id' => 'establishment_types', 'options' => $types));
@@ -270,6 +395,13 @@ class PlacesHelper extends AppHelper {
 		echo $this->Html->scriptEnd();
 	}
 
+/**
+ * Display one line localization in a Google Maps way by default. You can adjust the template by using :place, :city and :country to display place's name, city's name and country's name
+ *
+ * @param array $localizationData The localization's data
+ * @param string $template The message's template. Use :place, :city and :country to display respective names
+ * @return string The one line localization data
+ */	
 	public function oneLineLocalization($localizationData, $template = ':place, :city, :country') {
 		$placeName = $localizationData['Place']['Place']['name'];
 		$placeCity = !empty($localizationData['Place']['PlaceIn']) ? $localizationData['Place']['PlaceIn']['name'] : false;

@@ -146,21 +146,21 @@ class GooglePlacesAPI {
 /**
  * Google place web service url to retrieve place details
  *
- * @const PLACE_DETAIL_URL
+ * @var const PLACE_DETAIL_URL
  */
 	const PLACE_DETAIL_URL = "https://maps.googleapis.com/maps/api/place/details/";
 
 /**
  * Google place web service url to retrieve places predictions (autocomplete suggestions)
  *
- * @const PLACE_AUTOCOMPLETE_URL
+ * @var const PLACE_AUTOCOMPLETE_URL
  */
 	const PLACE_AUTOCOMPLETE_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/";
 
 /**
  * Google place web service url to add place
  *
- * @const PLACE_ADD_URL
+ * @var const PLACE_ADD_URL
  */
 	const PLACE_ADD_URL = "https://maps.googleapis.com/maps/api/place/add/";
 
