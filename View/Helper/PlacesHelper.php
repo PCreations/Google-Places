@@ -53,35 +53,35 @@ class PlacesHelper extends AppHelper {
 /**
  * Google component restrictions to cities search
  *
- * @var const CITIES_SEARCH
+ * @constant CITIES_SEARCH
  */
 	const CITIES_SEARCH = '(cities)';
 
 /**
  * Google label for establishment search
  *
- * @var const ESTABLISHMENT_SEARCH
+ * @constant ESTABLISHMENT_SEARCH
  */
 	const ESTABLISHMENT_SEARCH = 'establishment';
 
 /**
  * Google label for address search (geocode)
  *
- * @var const ADDRESS_SEARCH
+ * @constant ADDRESS_SEARCH
  */
 	const ADDRESS_SEARCH = 'geocode';
 
 /**
  * Google component restrictions to regions search
  *
- * @var const REGIONS_SEARCH
+ * @constant REGIONS_SEARCH
  */
 	const REGIONS_SEARCH = '(regions)';
 
 /**
  * Google places API url
  *
- * @var const PLACES_API_URL
+ * @constant PLACES_API_URL
  */
 	const PLACES_API_URL = "http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false";
 
