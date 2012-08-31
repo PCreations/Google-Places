@@ -10,6 +10,8 @@
  * @author Pierre Criulanscy
  */
 
+App::uses('Hash', 'Cake/Utility');
+
 /**
  * PlaceHandler Component
  *

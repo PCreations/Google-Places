@@ -35,7 +35,7 @@ class PlacesController extends GooglePlacesAppController {
 	public $helpers = array('GooglePlaces.Places');
 
 
-	/*public function handleCityAutocomplete() {
+	public function handleCityAutocomplete() {
 		$this->autoRender = false;
 		
 		if(!$this->RequestHandler->isAjax()) {
@@ -44,7 +44,7 @@ class PlacesController extends GooglePlacesAppController {
 
 		$place = json_decode($_POST['place']);
 		$this->PlaceHandler->savePlace($place);
-	}*/
+	}
 
 /**
  * Handles establishement places autocomplete

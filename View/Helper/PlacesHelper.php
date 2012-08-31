@@ -159,6 +159,7 @@ class PlacesHelper extends AppHelper {
  *
  * @param array $countries List of countries (directly available in view thanks to PlaceHandler component)
  * @param string $iso2 The alpha-2 ISO 3166-1 country code
+ * @param boolean $onlyCity If set to true only city input will be displayed
  * @param array $autocompleteInputOptions Same array options than FormHelper::input() array options
  * @param array $defaultValues Default values used to prefill form
  * @see PlacesController::handleCityAutocomplete()
@@ -166,7 +167,7 @@ class PlacesHelper extends AppHelper {
  * @see PlacesController::handleGeocodeAutocomplete()
  * @see PlacesController::handleAddPlace()
  */
-	public function autocompleteEstablishmentsInCity($countries, $iso2, $autocompleteInputOptions = array(), $defaultValues = array()) {
+	public function autocompleteEstablishmentsInCity($countries, $iso2, $onlyCity = false, $autocompleteInputOptions = array(), $defaultValues = array()) {
 		$this->defaultCountry = strtoupper($iso2);
 		$countriesInput = 'countries_autocomplete';
 		$establishmentAutocomplete = 'establishment_autocomplete';
@@ -174,6 +175,8 @@ class PlacesHelper extends AppHelper {
 		$establishmentReference = 'Localization.establishment_reference';
 		$classEstablishmentID = 'establishmentID';
 		$classEstablishmentReference = 'establishmentReference';
+		$classPlaceID = 'placeID';
+		$classPlaceReference = 'placeReference';
 
 		$countriesInputDefault = (!empty($defaultValues['Place']['Country']['iso'])) ? $defaultValues['Place']['Country']['iso'] : $this->defaultCountry;
 		$establishmentIDdefault = (!empty($defaultValues['Place']['Place']['id'])) ? $defaultValues['Place']['Place']['id'] : '';
@@ -182,8 +185,8 @@ class PlacesHelper extends AppHelper {
 		echo $this->Form->input($countriesInput, array('id' => $countriesInput, 'options' => $countries, 'default' => $countriesInputDefault));
 		$this->_setAutocomplete(self::CITIES_SEARCH, $countriesInput, array('placeholder' => __('Establishment\'s city')), $countriesInputDefault, false, $defaultValues);
 
-		echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $classEstablishmentID, 'value' => $establishmentIDdefault));
-		echo $this->Form->hidden($establishmentReference, array('id' => $establishmentReference, 'class' => $classEstablishmentReference, 'value' => $establishmentReferenceDefault));
+		echo $this->Form->hidden($establishmentID, array('id' => $establishmentID, 'class' => $onlyCity ? $classPlaceID : $classEstablishmentID, 'value' => $establishmentIDdefault));
+		echo $this->Form->hidden($establishmentReference, array('id' => $establishmentReference, 'class' => $onlyCity ? $classPlaceReference : $classEstablishmentReference, 'value' => $establishmentReferenceDefault));
 		echo $this->Form->input($establishmentAutocomplete, array(
 			'class' => 'establishmentAutocomplete',
 			'div' => array(
@@ -191,64 +194,66 @@ class PlacesHelper extends AppHelper {
 				'class' => 'divEstablishment'
 			)
 		));
-		$this->Html->scriptStart(array('inline' => false));
-		?>
-			gpInput.appendToPlaceChangedCallback(gpInput, function(){
-				$('.divEstablishment').show();
-				place = gpInput.autocomplete.getPlace();
-				console.log("in establishment");
-				console.log(place);
+		if(!$onlyCity) {
+			$this->Html->scriptStart(array('inline' => false));
+			?>
+				gpInput.appendToPlaceChangedCallback(gpInput, function(){
+					$('.divEstablishment').show();
+					place = gpInput.autocomplete.getPlace();
+					console.log("in establishment");
+					console.log(place);
 
-				var input = $('.establishmentAutocomplete');
-				var cache = {},lastXhr;
-				var inputVal;
-				var cityName;
-				input.autocomplete({
-					minLength:2,
-					source: function( request, response ) {
-						$('#addPlace').remove();
-						request.iso = $('.countryID').val();
-						console.log("ISO = "+request.iso);
-						request.cityName = place.name;
-						cityName = place.name;
-						request.lat = place.geometry.location.lat;
-						request.lng = place.geometry.location.lng;
-						inputVal = $('.establishmentAutocomplete').val();
-						var term = request.term;
-						if ( term in cache ) {
-							response( cache[ term ] );
-							return;
-						}
-
-						lastXhr = $.getJSON( "<?php echo $this->_establishmentAutocompleteCallback; ?>", request, function( data, status, xhr ) {
-							cache[ term ] = data;
-							if ( xhr === lastXhr ) {
-								response( data );
+					var input = $('.establishmentAutocomplete');
+					var cache = {},lastXhr;
+					var inputVal;
+					var cityName;
+					input.autocomplete({
+						minLength:2,
+						source: function( request, response ) {
+							$('#addPlace').remove();
+							request.iso = $('.countryID').val();
+							console.log("ISO = "+request.iso);
+							request.cityName = place.name;
+							cityName = place.name;
+							request.lat = place.geometry.location.lat;
+							request.lng = place.geometry.location.lng;
+							inputVal = $('.establishmentAutocomplete').val();
+							var term = request.term;
+							if ( term in cache ) {
+								response( cache[ term ] );
+								return;
 							}
-						});
-					},
-					select : function(event, ui){
-						var establishmentInfos = ui.item.id.split('|'); //[0] => id, [1] => reference
-						console.log('SELECT');
-						console.log(ui);
-						console.log(establishmentInfos);
-						console.log(inputVal);
-						if(establishmentInfos[0] == -1) {
-							$('.divEstablishment').append('<div id="addPlace"></div>');
-							console.log('countriesInput : <?php echo $countriesInput;?>\ncountryID : '+$('.countryID').val()+'\ncityName : '+cityName);
-							$('#addPlace').load('<?php echo $this->_addPlaceCallback;?>', {countriesInput: '<?php echo $countriesInput;?>', country: $('.countryID').val(), cityName: cityName}, function() {
-								$('.establishmentAutocomplete').val(inputVal);
+
+							lastXhr = $.getJSON( "<?php echo $this->_establishmentAutocompleteCallback; ?>", request, function( data, status, xhr ) {
+								cache[ term ] = data;
+								if ( xhr === lastXhr ) {
+									response( data );
+								}
 							});
+						},
+						select : function(event, ui){
+							var establishmentInfos = ui.item.id.split('|'); //[0] => id, [1] => reference
+							console.log('SELECT');
+							console.log(ui);
+							console.log(establishmentInfos);
+							console.log(inputVal);
+							if(establishmentInfos[0] == -1) {
+								$('.divEstablishment').append('<div id="addPlace"></div>');
+								console.log('countriesInput : <?php echo $countriesInput;?>\ncountryID : '+$('.countryID').val()+'\ncityName : '+cityName);
+								$('#addPlace').load('<?php echo $this->_addPlaceCallback;?>', {countriesInput: '<?php echo $countriesInput;?>', country: $('.countryID').val(), cityName: cityName}, function() {
+									$('.establishmentAutocomplete').val(inputVal);
+								});
+							}
+							else {
+								$('.<?php echo $classEstablishmentID;?>').val(establishmentInfos[0]);
+								$('.<?php echo $classEstablishmentReference;?>').val(establishmentInfos[1]);
+							}
 						}
-						else {
-							$('.<?php echo $classEstablishmentID;?>').val(establishmentInfos[0]);
-							$('.<?php echo $classEstablishmentReference;?>').val(establishmentInfos[1]);
-						}
-					}
+					});
 				});
-			});
-		<?php
-		$this->Html->scriptEnd();
+			<?php
+			$this->Html->scriptEnd();
+		}
 		if($this->Form->isFieldError($establishmentID)) {
 			$this->Html->scriptStart(array('inline' => false));
 			?>
@@ -328,7 +333,6 @@ class PlacesHelper extends AppHelper {
 					var place = this.place;
 					$('.<?php echo $classPlaceID;?>').val(place.id);
 					$('.<?php echo $classPlaceReference;?>').val(place.reference);
-					$.post("<?php echo $this->_cityAutocompleteCallback;?>", {place: JSON.stringify(place)});
 				}
 			);
 		<?php
@@ -403,14 +407,19 @@ class PlacesHelper extends AppHelper {
  * @return string The one line localization data
  */	
 	public function oneLineLocalization($localizationData, $template = ':place, :city, :country') {
-		$placeName = $localizationData['Place']['Place']['name'];
-		$placeCity = !empty($localizationData['Place']['PlaceIn']) ? $localizationData['Place']['PlaceIn']['name'] : false;
+		//debug($localizationData);
+		if($localizationData['Place']['Place']['place_id'] != null) {
+			$city = $localizationData['Place']['PlaceIn']['name'];
+			$placeName = $localizationData['Place']['Place']['name'];
+		} else {
+			$city = $localizationData['Place']['Place']['name'];
+			$placeName = null;
+		}
 		$country = $localizationData['Place']['Country']['name'];
-
-		$template = ($placeCity === false) ? str_replace(':city ', '', $template) : $template;
+		$template = ($placeName == null) ? str_replace(':place ', '', $template) : $template;
 		return String::insert($template, array(
 			'place' => $placeName,
-			'city' => $placeCity,
+			'city' => $city,
 			'country' => $country
 		));
 	}

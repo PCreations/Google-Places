@@ -84,14 +84,14 @@ class LocalizableBehavior extends ModelBehavior {
 		
 		/* Place report request */
 		if(isset($model->data['Localization']['action']) && $model->data['Localization']['action'] == 'place_report') {
-			$newPlace = array(
-				'id' => '1b67b6e8743a7d9176779f95f22b9a0c7e2767ba',
+			/*$newPlace = array(
+				'id' => $model->data['Localization']['establishment_id'],
 				'reference' => 'CkQxAAAAJg9BZYZ2dxCfitgpJkSVKax4c3IVlsha_cyEoVEqBRyxojwESM3alo10OzHV-OUaVwa0KFL7WGa2Ec9C1rrmShIQvq3RFmpu2TSDvhXvGUQqbxoU9EIiSEPSArErcRCv_fpKU_P-41U',
 				'status' => 'OK'
 			);
 			if($newPlace['status'] != 'OK') {
 				die('Unable to add place. Server responded with ' . $newPlace['status'] . ' status'); 
-			}
+			}*/
 
 			/* Set up localization information et clean up unused data */
 			$model->data['Localization']['establishment_id'] = $newPlace['id'];
@@ -240,6 +240,7 @@ class LocalizableBehavior extends ModelBehavior {
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;
 		}
+		die('afterSave');
 	}
 }
 
