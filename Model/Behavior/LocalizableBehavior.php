@@ -240,7 +240,6 @@ class LocalizableBehavior extends ModelBehavior {
 			$model->data['Localization']['foreign_key'] = $model->id;
 			$model->data['Localization']['model'] = $model->alias;
 		}
-		die('afterSave');
 	}
 }
 
